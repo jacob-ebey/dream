@@ -59,7 +59,7 @@ export default async function Chat() {
           hx-target="previous .chat__messages > .chat__pending-bot-message"
           hx-swap="beforebegin"
           hx-disabled-elt="input, button"
-          hx-indicator="closest main"
+          hx-indicator="closest .chat"
         >
           <input type="hidden" name="chatId" value={chatId} />
           <input type="text" name="prompt" />
