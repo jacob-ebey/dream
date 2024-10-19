@@ -1,0 +1,41 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.chat__messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.chat__user-message,
+.chat__bot-message {
+  margin-bottom: 10px;
+  text-wrap: wrap;
+}
+
+.chat__user-message {
+  text-align: right;
+}
+
+.chat__bot-message {
+  text-align: left;
+}
+.chat__bot-message pre {
+  text-wrap: wrap;
+}
+
+.chat__error-message {
+  color: red;
+}
+
+.chat__pending-bot-message {
+  display: none;
+}
+
+.htmx-request .chat__user-message + .chat__pending-bot-message {
+  display: block;
+}
