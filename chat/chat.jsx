@@ -1,19 +1,15 @@
 import { actionResult } from "dream";
 
-import { requireUser } from "./lib/auth.js";
+import { requireUser } from "~/lib/auth.js";
 
 import stylesHref from "./chat.css?url";
-import Enhancement from "./chat.enhancement.js?element";
+import enhancementSrc from "./chat.enhancement.js?enhancement";
 import { validateAndSendChatMessage } from "./chat.server.js";
-import {
-  BotMessage,
-  ErrorMessage,
-  StreamText,
-  UserMessage,
-} from "./chat.shared.js";
+import { BotMessage, ErrorMessage, UserMessage } from "./chat.shared.js";
 
 async function sendMessageAction(request) {
   "use action";
+
   const user = requireUser();
 
   const formData = await request.formData();
@@ -39,10 +35,12 @@ export default async function Chat() {
   const messages = await getMessages(user.id, chatId);
 
   return (
-    <Enhancement>
-      <main class="chat">
-        <link rel="stylesheet" href={stylesHref} />
-        <div class="chat__messages">
+    <>
+      <script async src={enhancementSrc} />
+      <link rel="stylesheet" href={stylesHref} />
+
+      <chat-app>
+        <div class="chat-app__messages">
           {messages.map((message) => {
             if (message.sender === "user") {
               return <UserMessage>{message.text}</UserMessage>;
@@ -50,22 +48,29 @@ export default async function Chat() {
             return <BotMessage>{message.text}</BotMessage>;
           })}
           {actionResult(sendMessageAction)}
-          <div class="pending-bot-message">
+          <div class="chat-app__pending-bot-message">
             <BotMessage>...</BotMessage>
           </div>
         </div>
         <form
           action={sendMessageAction}
-          hx-target="previous .chat__messages > .chat__pending-bot-message"
+          class="chat-app__form"
+          hx-target="previous .chat-app__messages > .chat-app__pending-bot-message"
           hx-swap="beforebegin"
           hx-disabled-elt="input, button"
-          hx-indicator="closest .chat"
+          hx-indicator="closest chat-app"
         >
           <input type="hidden" name="chatId" value={chatId} />
           <input type="text" name="prompt" />
           <button type="submit">Send</button>
         </form>
-      </main>
-    </Enhancement>
+      </chat-app>
+    </>
   );
+}
+
+async function* StreamText({ iterable }) {
+  for await (const text of iterable) {
+    yield <span>{text}</span>;
+  }
 }

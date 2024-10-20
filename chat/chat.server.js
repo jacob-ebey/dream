@@ -5,6 +5,11 @@ export function validateAndSendChatMessage(userId, chatId, prompt) {
   if (!validated.valid) {
     return validated;
   }
+
+  // TODO: Store the message in the database
+
+  // TODO: Implement calling LLM and storing the result in the db on the next event loop
+  // so we always render things in the correct order
   return {
     valid: true,
     iterable: streamPrompt(prompt),

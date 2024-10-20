@@ -17,7 +17,7 @@ export function validateChatInput(prompt) {
 
 export function UserMessage({ children }) {
   return (
-    <div class="chat__user-message">
+    <div class="chat-app__user-message">
       <img src={userIconSrc} alt="" width="24" height="24" />
       <p>{children}</p>
     </div>
@@ -26,7 +26,7 @@ export function UserMessage({ children }) {
 
 export function BotMessage({ children }) {
   return (
-    <div class="chat__bot-message">
+    <div class="chat-app__bot-message">
       <img src={botIconSrc} alt="" width="24" height="24" />
       <pre>{children}</pre>
     </div>
@@ -35,15 +35,9 @@ export function BotMessage({ children }) {
 
 export function ErrorMessage({ children }) {
   return (
-    <div class="chat__bot-message chat__error-message">
+    <div class="chat-app__bot-message chat-app__error-message">
       <img src={errorIconSrc} alt="" width="24" height="24" />
       <p>{children}</p>
     </div>
   );
-}
-
-export async function* StreamText({ iterable }) {
-  for await (const text of iterable) {
-    yield <span>{text}</span>;
-  }
 }
