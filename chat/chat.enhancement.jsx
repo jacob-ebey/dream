@@ -5,7 +5,12 @@ import { UserMessage, validateChatInput } from "./chat.shared.jsx";
 class ChatForm extends HTMLElement {
   connectedCallback() {
     const form = this.querySelector(".chat-app__form");
-    form?.addEventListener("submit", this.handleSubmit);
+    form.addEventListener("submit", this.handleSubmit);
+
+    const promptInput = form.querySelector("input[name=prompt]");
+    promptInput.addEventListener("change", () => {
+      promptInput.setCustomValidity("");
+    });
   }
 
   handleSubmit(event) {
