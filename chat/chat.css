@@ -32,10 +32,10 @@ chat-app {
   color: red;
 }
 
-.chat-app__pending-bot-message {
-  display: none;
+.htmx-request .chat-app__user-message + .chat-app__pending-bot-message {
+  display: initial;
 }
 
-.htmx-request .chat-app__user-message + .chat-app__pending-bot-message {
-  display: block;
+.chat-app__pending-bot-message {
+  display: none;
 }

@@ -4,7 +4,7 @@ import { UserMessage, validateChatInput } from "./chat.shared.jsx";
 
 class ChatForm extends HTMLElement {
   connectedCallback() {
-    const form = this.querySelector("form");
+    const form = this.querySelector(".chat-app__form");
     form?.addEventListener("submit", this.handleSubmit);
   }
 
@@ -25,7 +25,7 @@ class ChatForm extends HTMLElement {
 
     swap(
       this,
-      "find .messages > .pending-bot-message",
+      "find .chat-app__messages > .chat-app__pending-bot-message",
       "beforebegin",
       <UserMessage>{prompt}</UserMessage>
     );

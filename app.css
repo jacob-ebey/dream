@@ -1,0 +1,8 @@
+.htmx-request.indicator-show,
+.htmx-request .indicator-show {
+  display: initial;
+}
+
+.indicator-show {
+  display: none;
+}

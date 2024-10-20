@@ -1,8 +1,9 @@
 import { defineApp } from "dream";
 
+import spinnerSrc from "./icons/spinner.svg?url";
 import { getUser, unsetUserId } from "./lib/auth.js";
 
-import spinnerSrc from "./icons/spinner.svg?url";
+import appCssHref from "./app.css?url";
 
 export default defineApp((c) => [
   c.layout(Layout, (c) => [
@@ -14,6 +15,7 @@ export default defineApp((c) => [
 
 async function logoutAction(request) {
   "use action";
+
   unsetUserId();
   return new Response("logged out", {
     status: 303,
@@ -29,6 +31,7 @@ function Layout({ children }) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href={appCssHref} />
       </head>
       <body>
         {!!user && (
