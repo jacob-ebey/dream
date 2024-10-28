@@ -1,5 +1,5 @@
 import type { JSXNode, SwapType } from "pipeable-dom/jsx";
-import { swap as baseSwap } from "pipeable-dom/jsx";
+import { swap as baseSwap } from "pipeable-dom/browser";
 
 export function defineElement(
   tagName: string,

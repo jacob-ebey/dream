@@ -42,6 +42,7 @@ export default function Login({
         <login-form>
           <form
             action={loginAction}
+            method="post"
             hx-target="self"
             hx-indicator="self"
             hx-disabled-elt="input, button"

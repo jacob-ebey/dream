@@ -2,7 +2,12 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["node", "urlpattern-polyfill", "vite/client", "./dream.d.ts"],
+    "types": [
+      "./src/dream-types.d.ts",
+      "node",
+      "urlpattern-polyfill",
+      "vite/client"
+    ],
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -10,12 +15,13 @@
     "jsxImportSource": "dream",
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"],
-      "dream": ["./dream.ts"],
-      "dream/browser": ["./dream-browser.ts"],
-      "dream/jsx": ["./dream-jsx.ts"],
-      "dream/jsx-runtime": ["./dream-jsx.ts"],
-      "dream/jsx-dev-runtime": ["./dream-jsx.ts"]
+      "~/*": ["./example/*"],
+      "dream": ["./src/dream.ts"],
+      "dream/browser": ["./src/dream-browser.ts"],
+      "dream/jsx": ["./src/dream-jsx.ts"],
+      "dream/jsx-runtime": ["./src/dream-jsx.ts"],
+      "dream/jsx-dev-runtime": ["./src/dream-jsx.ts"],
+      "dream/types": ["./src/dream-types.d.ts"]
     },
     "noEmit": true
   }

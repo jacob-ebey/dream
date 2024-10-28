@@ -1,6 +1,6 @@
 import { actionResult, getParam } from "dream";
 
-import { requireUser } from "~/lib/auth.js";
+import { getUser } from "~/lib/auth.js";
 
 import stylesHref from "./chat.css?url";
 import enhancementSrc from "./chat.enhancement.tsx?enhancement";
@@ -10,7 +10,7 @@ import { BotMessage, ErrorMessage, UserMessage } from "./chat.shared.js";
 async function sendMessageAction(request: Request) {
   "use action";
 
-  const user = requireUser();
+  const user = getUser();
 
   const formData = await request.formData();
   const chatId = formData.get("chatId");
@@ -29,10 +29,10 @@ async function sendMessageAction(request: Request) {
 }
 
 export default async function Chat() {
-  const chatId = getParam("chatId");
+  const chatId = getParam("chatId", false);
 
-  const user = requireUser();
-  const messages = await getMessages(user.id, chatId);
+  const user = getUser();
+  const messages = chatId ? await getMessages(user.id, chatId) : [];
 
   return (
     <>
@@ -54,6 +54,7 @@ export default async function Chat() {
         </div>
         <form
           action={sendMessageAction}
+          method="post"
           class="chat-app__form"
           hx-target="previous .chat-app__messages > .chat-app__pending-bot-message"
           hx-swap="beforebegin"

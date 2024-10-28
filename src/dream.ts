@@ -22,23 +22,20 @@ export * from "std-router";
 
 export type LayoutComponent = (props: { children: JSXNode }) => JSXNode;
 
+export type ComponentModule = {
+  default: (props: any) => JSXNode;
+};
+
 export const component =
-  (
-    loadOrComponent:
-      | ((props: any) => Promise<{ default: (props: any) => JSXNode }>)
-      | ((props: any) => JSXNode)
+  <const Mod extends ComponentModule>(
+    loadOrModule: (() => Promise<Mod>) | Mod
   ): RequestHandler<Renderer<JSXNode>> =>
   async (c) => {
-    const mod: { default: (props: any) => JSXNode } | JSXNode = await (
-      loadOrComponent as (
-        props: any
-      ) => { default: (props: any) => JSXNode } | JSXNode
-    )({});
-    if (typeof mod === "object" && mod !== null && "default" in mod) {
-      const Component = mod.default;
-      return c.render(jsx(Component));
+    if (typeof loadOrModule === "function") {
+      loadOrModule = await loadOrModule();
     }
-    return c.render(mod);
+    const Component = loadOrModule.default;
+    return c.render(jsx(Component));
   };
 
 const layoutContext = defineContext<LayoutComponent[]>();
@@ -50,8 +47,21 @@ export const layout: (Layout: LayoutComponent) => Middleware<never> =
     return next();
   };
 
-const renderer: Renderer<JSXNode> = (c, node, init) => {
-  return new Response(render(node), init);
+const renderer: Renderer<JSXNode> = async (c, node, init) => {
+  const layouts = c.get(layoutContext, false) ?? [];
+
+  let children = node;
+  for (let i = layouts.length - 1; i >= 0; i--) {
+    children = jsx(layouts[i], { children });
+  }
+
+  const headers = new Headers(init?.headers);
+  headers.set("Content-Type", "text/html; charset=utf-8");
+
+  return new Response(render(children), {
+    ...init,
+    headers,
+  });
 };
 
 export function defineRoutes<
@@ -73,7 +83,7 @@ export function defineRoutes<
     basePath,
     middleware,
     renderer,
-  }).routes;
+  });
 }
 
 export interface Session {
@@ -128,49 +138,61 @@ export async function handleRequest(
   request: Request,
   routes: ReadonlyArray<Route<any, any>>
 ): Promise<Response | null> {
-  const match = matchRoutes(routes, new URL(request.url));
-  if (!match) {
-    return null;
-  }
-
-  const actionResults = new WeakMap();
-
-  let hasModifiedSession = false;
-  // TODO: Implement session storage
-  const session: Session = {
-    get(key) {
+  try {
+    const match = matchRoutes(routes, new URL(request.url));
+    if (!match) {
       return null;
-    },
-    set(key, value) {
-      hasModifiedSession = true;
-    },
-    unset(key) {
-      hasModifiedSession = true;
-    },
-  };
+    }
 
-  const ctx: RequestContext = {
-    actionResults,
-    match,
-    request,
-    session,
-  };
+    const actionResults = new WeakMap();
 
-  const response = await requestContext.run(ctx, async () => {
-    return await runMatch(match, request);
-  });
+    let hasModifiedSession = false;
+    // TODO: Implement session storage
+    const session: Session = {
+      get(key) {
+        return null;
+      },
+      set(key, value) {
+        hasModifiedSession = true;
+      },
+      unset(key) {
+        hasModifiedSession = true;
+      },
+    };
 
-  if (hasModifiedSession) {
-    const headers = new Headers(response.headers);
-    // TODO: Commit session changes
-    return new Response(response.body, {
-      headers,
-      status: response.status,
-      statusText: response.statusText,
-    });
+    const ctx: RequestContext = {
+      actionResults,
+      match,
+      request,
+      session,
+    };
+
+    const response = await requestContext.run(ctx, () =>
+      runMatch(match, request)
+    );
+
+    if (hasModifiedSession) {
+      const headers = new Headers(response.headers);
+      // TODO: Commit session changes
+      return new Response(response.body, {
+        headers,
+        status: response.status,
+        statusText: response.statusText,
+      });
+    }
+
+    return response;
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      error instanceof Error &&
+      error.cause instanceof Response
+    ) {
+      return error.cause;
+    }
+    throw error;
   }
-
-  return response;
 }
 
 export type RoutePattern<Routes extends ReadonlyArray<Route<any, any>>> =
@@ -181,8 +203,19 @@ export type RouteParams<Routes extends ReadonlyArray<Route<any, any>>> =
 
 export function link<const Routes extends ReadonlyArray<Route<any, any>>>(
   pattern: RoutePattern<Routes>,
-  params?: Record<RouteParams<Routes>, string | number | null | undefined>
+  {
+    action,
+    params,
+  }: {
+    action?: string;
+    params?: Record<RouteParams<Routes>, string | number | null | undefined>;
+  } = {}
 ): string {
-  // TODO: Implement link generation
-  return "";
+  let result = pattern;
+  for (const [key, value] of Object.entries(params ?? {})) {
+    result = result.replace(key, value != null ? String(value) : "");
+  }
+  const url = new URL(result, "http://localhost");
+  if (action) url.searchParams.set("_action", action ?? "");
+  return url.pathname + url.search;
 }

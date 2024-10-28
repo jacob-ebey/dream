@@ -2,7 +2,7 @@ import { component, defineRoutes, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
 
 import spinnerSrc from "./icons/spinner.svg?url";
-import { getUser, unsetUserId } from "./lib/auth.js";
+import { getUser, requireUser, unsetUserId } from "./lib/auth.js";
 
 import appCssHref from "./app.css?url";
 
@@ -13,12 +13,17 @@ export const routes = defineRoutes((router) =>
       "/login",
       component(() => import("./login/login.js"))
     )
-    .route(
-      "/chat",
-      component(() => import("./chat/chat.js"))
+    .mount(
+      "/",
+      ...defineRoutes((router) =>
+        router.use(requireUser).route(
+          "/chat",
+          component(() => import("./chat/chat.js"))
+        )
+      )
     )
-    .route("/", component(Home))
-    .route("*", component(NotFound))
+    .route("/", component({ default: Home }))
+    .route("*", component({ default: NotFound }))
 );
 
 async function logoutAction(request: Request) {
@@ -32,18 +37,21 @@ async function logoutAction(request: Request) {
 }
 
 function Layout({ children }: { children: JSXNode }) {
-  const user = getUser();
+  const user = getUser(false);
 
   return (
     <html lang="en">
       <head>
-        <meta charSet="UTF-8" />
+        <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href={appCssHref} />
       </head>
       <body>
         <nav>
           <ul>
+            <li>
+              <a href={link<typeof routes>("/")}>Home</a>
+            </li>
             <li>
               <a href={link<typeof routes>("/login")}>Login</a>
             </li>
@@ -55,6 +63,7 @@ function Layout({ children }: { children: JSXNode }) {
         {!!user && (
           <form
             action={logoutAction}
+            method="post"
             hx-indicator="self"
             hx-disabled-elt="button"
           >
