@@ -179,7 +179,7 @@ export type RoutePattern<Routes extends ReadonlyArray<Route<any, any>>> =
 export type RouteParams<Routes extends ReadonlyArray<Route<any, any>>> =
   ExtractPathnameParams<Routes[number]["path"]>;
 
-export function link<Routes extends ReadonlyArray<Route<any, any>>>(
+export function link<const Routes extends ReadonlyArray<Route<any, any>>>(
   pattern: RoutePattern<Routes>,
   params?: Record<RouteParams<Routes>, string | number | null | undefined>
 ): string {
