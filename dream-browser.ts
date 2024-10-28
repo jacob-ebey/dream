@@ -1,3 +1,6 @@
+import type { JSXNode, SwapType } from "pipeable-dom/jsx";
+import { swap as baseSwap } from "pipeable-dom/jsx";
+
 export function defineElement(
   tagName: string,
   Constructor: CustomElementConstructor
@@ -10,4 +13,15 @@ export function defineElement(
     return;
   }
   customElements.define(tagName, Constructor);
+}
+
+export function swap(
+  self: Element,
+  selector: string,
+  swap: SwapType,
+  newContent: JSXNode
+): Promise<void> {
+  // TODO: Implement enhanced selector syntax
+  const target = self.querySelector(selector)!;
+  return baseSwap(target, swap, newContent);
 }

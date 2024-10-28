@@ -6,8 +6,8 @@ settings:
 
 devDependencies:
   pipeable-dom:
-    specifier: 0.0.12
-    version: 0.0.12
+    specifier: 0.0.13
+    version: 0.0.13
   std-router:
     specifier: 0.0.4
     version: 0.0.4
@@ -434,8 +434,8 @@ packages:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
     dev: true
 
-  /pipeable-dom@0.0.12:
-    resolution: {integrity: sha512-jqk6N/wh+DT3QgY8m9Z2sSn+PMo/sbr+jzltaJ+/tdF6LEun+GVpBx2BpgbDifJ4MeUfjBlCn8I5WUA1a2c/6Q==}
+  /pipeable-dom@0.0.13:
+    resolution: {integrity: sha512-UROGG9v0w7VbkTb57/5ujrD970cMIN+EBuveWzZiaIVZ/3VgEYspgOfaWnYIYIKb5aAacFUYM4hUw4dPqeFRWw==}
     dev: true
 
   /postcss@8.4.47:
