@@ -5,13 +5,13 @@ import { getUser, unsetUserId } from "./lib/auth.js";
 
 import appCssHref from "./app.css?url";
 
-export default defineApp((c) => [
-  c.layout(Layout, (c) => [
-    c.index(Home),
-    c.route("/login", () => import("./login/login.js")),
-    c.route("/chat", () => import("./chat/chat.js")),
-  ]),
-]);
+export default defineApp((router) =>
+  router
+    .layout(Layout)
+    .route("/login", () => import("./login/login.js"))
+    .route("/chat", () => import("./chat/chat.js"))
+    .route("*", Home)
+);
 
 async function logoutAction(request) {
   "use action";
