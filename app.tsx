@@ -17,7 +17,8 @@ export const routes = defineRoutes((router) =>
       "/chat",
       component(() => import("./chat/chat.js"))
     )
-    .route("*", component(Home))
+    .route("/", component(Home))
+    .route("*", component(NotFound))
 );
 
 async function logoutAction(request: Request) {
@@ -26,7 +27,7 @@ async function logoutAction(request: Request) {
   unsetUserId();
   return new Response("logged out", {
     status: 303,
-    headers: { Location: link<typeof routes>("/*", { "*": "" }) },
+    headers: { Location: link<typeof routes>("/") },
   });
 }
 
@@ -84,6 +85,15 @@ function Home() {
         patterns. It's built on native web APIs and is designed with the "use
         the platform" and "progressive enhancement" philosophies in mind.
       </p>
+    </main>
+  );
+}
+
+function NotFound() {
+  return (
+    <main>
+      <h1>Not Found</h1>
+      <p>The page you are looking for does not exist.</p>
     </main>
   );
 }
