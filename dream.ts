@@ -7,9 +7,15 @@ import type {
   Renderer,
   RequestHandler,
   RouteMatch,
+  Route,
   Router,
 } from "std-router";
-import { defineContext, defineRoutes as defineStdRoutes } from "std-router";
+import {
+  defineContext,
+  defineRoutes as defineStdRoutes,
+  matchRoutes,
+  runMatch,
+} from "std-router";
 
 export * from "std-router";
 
@@ -17,12 +23,17 @@ export type LayoutComponent = (props: { children: JSXNode }) => JSXNode;
 
 export const component =
   (
-    load: () => Promise<{ default: (props: any) => JSXNode }>
+    loadOrComponent: () =>
+      | Promise<{ default: (props: any) => JSXNode }>
+      | ((props: any) => JSXNode)
   ): RequestHandler<Renderer<JSXElementStructure>> =>
   async (c) => {
-    const mod = await load();
-    const Component = mod.default;
-    return c.render(jsx(Component));
+    const mod = await loadOrComponent();
+    if ("default" in mod) {
+      const Component = mod.default;
+      return c.render(jsx(Component));
+    }
+    return c.render(jsx(mod));
   };
 
 const layoutContext = defineContext<LayoutComponent[]>();
@@ -60,10 +71,17 @@ export function defineRoutes<
   }).routes;
 }
 
+export interface Session {
+  get(key: string): string | null;
+  set(key: string, value: string): void;
+  unset(key: string): void;
+}
+
 type RequestContext = {
   actionResults: WeakMap<any, any>;
   match: RouteMatch;
   request: Request;
+  session: Session;
 };
 
 const requestContext = new AsyncLocalStorage<RequestContext>();
@@ -94,4 +112,58 @@ export function getParam(param: string, required: boolean = true): string {
     throw new Error(`Missing required parameter: ${param}`);
   }
   return value as string;
+}
+
+export function getSession(): Session {
+  const { session } = getContext();
+  return session;
+}
+
+export async function handleRequest(
+  request: Request,
+  routes: ReadonlyArray<Route<any, any>>
+): Promise<Response | null> {
+  const match = matchRoutes(routes, new URL(request.url));
+  if (!match) {
+    return null;
+  }
+
+  const actionResults = new WeakMap();
+
+  let hasModifiedSession = false;
+  // TODO: Implement session storage
+  const session: Session = {
+    get(key) {
+      return null;
+    },
+    set(key, value) {
+      hasModifiedSession = true;
+    },
+    unset(key) {
+      hasModifiedSession = true;
+    },
+  };
+
+  const ctx: RequestContext = {
+    actionResults,
+    match,
+    request,
+    session,
+  };
+
+  const response = await requestContext.run(ctx, async () => {
+    return await runMatch(match, request);
+  });
+
+  if (hasModifiedSession) {
+    const headers = new Headers(response.headers);
+    // TODO: Commit session changes
+    return new Response(response.body, {
+      headers,
+      status: response.status,
+      statusText: response.statusText,
+    });
+  }
+
+  return response;
 }

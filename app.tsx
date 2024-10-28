@@ -17,7 +17,7 @@ export default defineRoutes((router) =>
       "/chat",
       component(() => import("./chat/chat.js"))
     )
-    .route("*", Home)
+    .route("*", component(Home))
 );
 
 async function logoutAction(request: Request) {
