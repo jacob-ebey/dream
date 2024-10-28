@@ -4,18 +4,22 @@ import { validateLoginInput } from "~/lib/auth.shared.js";
 
 class LoginForm extends HTMLElement {
   connectedCallback() {
-    const form = this.querySelector("form");
+    const form = this.querySelector("form") as HTMLFormElement;
     form.addEventListener("submit", this.handleSubmit);
 
-    const passwordInput = form.querySelector("input[name=password]");
+    const passwordInput = form.querySelector(
+      "input[name=password]"
+    ) as HTMLInputElement;
     passwordInput.addEventListener("change", () => {
       passwordInput.setCustomValidity("");
     });
   }
 
-  handleSubmit(event) {
-    const form = event.target;
-    const passwordInput = form.querySelector("input[name=password]");
+  handleSubmit(event: SubmitEvent) {
+    const form = event.target as HTMLFormElement;
+    const passwordInput = form.querySelector(
+      "input[name=password]"
+    ) as HTMLInputElement;
 
     const formData = new FormData(form, event.submitter);
     const username = formData.get("username");

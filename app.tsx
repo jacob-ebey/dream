@@ -1,19 +1,20 @@
-import { defineApp } from "dream";
+import { defineRoutes, layout } from "dream";
+import type { JSXNode } from "dream/jsx";
 
 import spinnerSrc from "./icons/spinner.svg?url";
 import { getUser, unsetUserId } from "./lib/auth.js";
 
 import appCssHref from "./app.css?url";
 
-export default defineApp((router) =>
+export default defineRoutes((router) =>
   router
-    .layout(Layout)
+    .use(layout(Layout))
     .route("/login", () => import("./login/login.js"))
     .route("/chat", () => import("./chat/chat.js"))
     .route("*", Home)
 );
 
-async function logoutAction(request) {
+async function logoutAction(request: Request) {
   "use action";
 
   unsetUserId();
@@ -23,7 +24,7 @@ async function logoutAction(request) {
   });
 }
 
-function Layout({ children }) {
+function Layout({ children }: { children: JSXNode }) {
   const user = getUser();
 
   return (

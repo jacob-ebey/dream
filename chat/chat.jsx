@@ -3,7 +3,7 @@ import { actionResult } from "dream";
 import { requireUser } from "~/lib/auth.js";
 
 import stylesHref from "./chat.css?url";
-import enhancementSrc from "./chat.enhancement.js?enhancement";
+import enhancementSrc from "./chat.enhancement.tsx?enhancement";
 import { validateAndSendChatMessage } from "./chat.server.js";
 import { BotMessage, ErrorMessage, UserMessage } from "./chat.shared.js";
 

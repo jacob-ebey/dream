@@ -25,7 +25,7 @@ export function requireUser() {
   return { id: userId };
 }
 
-export function setUserId(id) {
+export function setUserId(userId: string) {
   const session = getSession();
   session.set("userId", userId);
 }
@@ -35,16 +35,31 @@ export function unsetUserId() {
   session.unset("userId");
 }
 
-export function validateUser(username, password) {
+export function validateUser(
+  username: FormDataEntryValue | null | undefined,
+  password: FormDataEntryValue | null | undefined
+):
+  | {
+      valid: false;
+      input: { username: string };
+      error: string;
+      user: null;
+    }
+  | {
+      valid: true;
+      input: { username: string };
+      user: { id: string };
+    } {
   const validated = validateLoginInput(username, password);
 
   if (!validated.valid) {
-    return { ...validated, user: null };
+    return { ...validated, valid: false, user: null };
   }
 
-  if (input.username === "admin" && password === "password") {
+  if (username === "admin" && password === "password") {
     return {
       ...validated,
+      error: "Invalid username or password",
       valid: false,
       user: null,
     };

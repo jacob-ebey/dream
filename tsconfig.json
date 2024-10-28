@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["vite/client", "./dream.d.ts"],
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "jsx": "react-jsx",
+    "jsxImportSource": "dream",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "dream": ["./dream.ts"],
+      "dream/browser": ["./dream-browser.ts"],
+      "dream/jsx": ["./dream-jsx.ts"],
+      "dream/jsx-runtime": ["./dream-jsx.ts"],
+      "dream/jsx-dev-runtime": ["./dream-jsx.ts"]
+    },
+    "noEmit": true
+  }
+}

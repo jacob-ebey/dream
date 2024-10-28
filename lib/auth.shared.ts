@@ -1,4 +1,16 @@
-export function validateLoginInput(username, password) {
+export function validateLoginInput(
+  username: FormDataEntryValue | null | undefined,
+  password: FormDataEntryValue | null | undefined
+):
+  | {
+      valid: false;
+      input: { username: string };
+      error: string;
+    }
+  | {
+      valid: true;
+      input: { username: string };
+    } {
   const input = { username: "" };
   if (typeof username === "string") {
     input.username = username;

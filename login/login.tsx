@@ -1,11 +1,11 @@
 import { actionResult } from "dream";
 
+import spinnerSrc from "~/icons/spinner.svg?url";
 import { setUserId, validateUser } from "~/lib/auth.js";
 
-import spinnerSrc from "~/icons/spinner.svg?url";
-import enhancementSrc from "~/login.enhancement.js?enhancement";
+import enhancementSrc from "./login.enhancement.js?enhancement";
 
-async function loginAction(request) {
+async function loginAction(request: Request) {
   "use action";
 
   const formData = await request.formData();
@@ -26,7 +26,13 @@ async function loginAction(request) {
   return <Login error={validated.error} username={validated.input.username} />;
 }
 
-export default function Login({ error, username }) {
+export default function Login({
+  error,
+  username,
+}: {
+  error?: string;
+  username?: string;
+}) {
   return (
     actionResult(loginAction) ?? (
       <>
