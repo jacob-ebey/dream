@@ -1,6 +1,14 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+
 import type { JSXElementStructure, JSXNode } from "pipeable-dom/jsx";
 import { jsx, render } from "pipeable-dom/jsx";
-import type { Middleware, Renderer, RequestHandler, Router } from "std-router";
+import type {
+  Middleware,
+  Renderer,
+  RequestHandler,
+  RouteMatch,
+  Router,
+} from "std-router";
 import { defineContext, defineRoutes as defineStdRoutes } from "std-router";
 
 export * from "std-router";
@@ -52,16 +60,38 @@ export function defineRoutes<
   }).routes;
 }
 
+type RequestContext = {
+  actionResults: WeakMap<any, any>;
+  match: RouteMatch;
+  request: Request;
+};
+
+const requestContext = new AsyncLocalStorage<RequestContext>();
+
+const getContext = () => {
+  const ctx = requestContext.getStore();
+  if (!ctx) {
+    throw new Error("No request context available");
+  }
+  return ctx;
+};
+
 export function actionResult<T extends (request: Request) => any>(
   action: T
 ): Awaited<ReturnType<T>> | undefined {
-  // TODO: Implement actions
-  return undefined;
+  const { actionResults } = getContext();
+  return actionResults.get(action);
 }
 
 export function getParam(param: string, required: false): string | null;
 export function getParam(param: string, required?: boolean): string;
 export function getParam(param: string, required: boolean = true): string {
-  // TODO: Implement getting params
-  return "";
+  const {
+    match: { match },
+  } = getContext();
+  const value = match.pathname.groups[param];
+  if (required && !value) {
+    throw new Error(`Missing required parameter: ${param}`);
+  }
+  return value as string;
 }
