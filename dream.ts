@@ -1,13 +1,21 @@
-import type { JSXNode } from "pipeable-dom/jsx";
-import { render } from "pipeable-dom/jsx";
-import type { Middleware, Renderer, Router } from "std-router";
+import type { JSXElementStructure, JSXNode } from "pipeable-dom/jsx";
+import { jsx, render } from "pipeable-dom/jsx";
+import type { Middleware, Renderer, RequestHandler, Router } from "std-router";
 import { defineContext, defineRoutes as defineStdRoutes } from "std-router";
 
 export * from "std-router";
 
 export type LayoutComponent = (props: { children: JSXNode }) => JSXNode;
 
-export const componentRoute = () => {};
+export const component =
+  (
+    load: () => Promise<{ default: (props: any) => JSXNode }>
+  ): RequestHandler<Renderer<JSXElementStructure>> =>
+  async (c) => {
+    const mod = await load();
+    const Component = mod.default;
+    return c.render(jsx(Component));
+  };
 
 const layoutContext = defineContext<LayoutComponent[]>();
 
@@ -18,7 +26,7 @@ export const layout: (Layout: LayoutComponent) => Middleware<never> =
     return next();
   };
 
-const renderer: Renderer<JSXNode> = (c, node, init) => {
+const renderer: Renderer<JSXElementStructure> = (c, node, init) => {
   return new Response(render(node), init);
 };
 
@@ -49,4 +57,11 @@ export function actionResult<T extends (request: Request) => any>(
 ): Awaited<ReturnType<T>> | undefined {
   // TODO: Implement actions
   return undefined;
+}
+
+export function getParam(param: string, required: false): string | null;
+export function getParam(param: string, required?: boolean): string;
+export function getParam(param: string, required: boolean = true): string {
+  // TODO: Implement getting params
+  return "";
 }

@@ -1,13 +1,13 @@
-import { actionResult } from "dream";
+import { actionResult, getParam } from "dream";
 
 import { requireUser } from "~/lib/auth.js";
 
 import stylesHref from "./chat.css?url";
 import enhancementSrc from "./chat.enhancement.tsx?enhancement";
-import { validateAndSendChatMessage } from "./chat.server.js";
+import { getMessages, validateAndSendChatMessage } from "./chat.server.js";
 import { BotMessage, ErrorMessage, UserMessage } from "./chat.shared.js";
 
-async function sendMessageAction(request) {
+async function sendMessageAction(request: Request) {
   "use action";
 
   const user = requireUser();
@@ -69,7 +69,7 @@ export default async function Chat() {
   );
 }
 
-async function* StreamText({ iterable }) {
+async function* StreamText({ iterable }: { iterable: AsyncIterable<string> }) {
   for await (const text of iterable) {
     yield <span>{text}</span>;
   }

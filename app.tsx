@@ -1,4 +1,4 @@
-import { defineRoutes, layout } from "dream";
+import { component, defineRoutes, layout } from "dream";
 import type { JSXNode } from "dream/jsx";
 
 import spinnerSrc from "./icons/spinner.svg?url";
@@ -9,8 +9,14 @@ import appCssHref from "./app.css?url";
 export default defineRoutes((router) =>
   router
     .use(layout(Layout))
-    .route("/login", () => import("./login/login.js"))
-    .route("/chat", () => import("./chat/chat.js"))
+    .route(
+      "/login",
+      component(() => import("./login/login.js"))
+    )
+    .route(
+      "/chat",
+      component(() => import("./chat/chat.js"))
+    )
     .route("*", Home)
 );
 
