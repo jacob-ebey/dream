@@ -1,5 +1,6 @@
-import { actionResult } from "dream";
+import { actionResult, link } from "dream";
 
+import type { routes } from "~/app.js";
 import spinnerSrc from "~/icons/spinner.svg?url";
 import { setUserId, validateUser } from "~/lib/auth.js";
 
@@ -17,9 +18,9 @@ async function loginAction(request: Request) {
   if (validated.valid) {
     setUserId(validated.user.id);
 
-    return new Response("logged in", {
+    throw new Response("logged in", {
       status: 303,
-      headers: { Location: "/" },
+      headers: { Location: link<typeof routes>("/chat") },
     });
   }
 

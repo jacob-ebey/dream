@@ -13,14 +13,17 @@ importers:
         version: 10.0.0
     devDependencies:
       '@types/node':
-        specifier: '20'
+        specifier: ^20
         version: 20.17.1
       pipeable-dom:
-        specifier: 0.0.13
-        version: 0.0.13
+        specifier: 0.0.14
+        version: 0.0.14
       std-router:
-        specifier: 0.0.4
-        version: 0.0.4
+        specifier: 0.0.6
+        version: 0.0.6
+      ts-toolbelt:
+        specifier: 9.6.0
+        version: 9.6.0
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -288,8 +291,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  pipeable-dom@0.0.13:
-    resolution: {integrity: sha512-UROGG9v0w7VbkTb57/5ujrD970cMIN+EBuveWzZiaIVZ/3VgEYspgOfaWnYIYIKb5aAacFUYM4hUw4dPqeFRWw==}
+  pipeable-dom@0.0.14:
+    resolution: {integrity: sha512-c6kwPzhGHXThM85mSUFOv+AEPEiaK8kRo8DULzolZpMcgaEaUTrCdOau7J7YuvUXqZVuEbaUH8zfyZ1I6LjZxA==}
 
   postcss@8.4.47:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
@@ -304,8 +307,11 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
-  std-router@0.0.4:
-    resolution: {integrity: sha512-3lF8iZh3T5Ju+mcgbbdXAAUf1Tv1B65z3NcW0OlTukvn/+JiqbEPfbQ5U4LkwYUFZ6HgWGr+ocVJSLktA/7srA==}
+  std-router@0.0.6:
+    resolution: {integrity: sha512-BEAZUd/4UColBWJBb8DlRDJntHm5Ai0ixAYlNBpRYzAl473nYU/YM5/nEzE2m2AIuuTXYyujWwzlreycGMmVSA==}
+
+  ts-toolbelt@9.6.0:
+    resolution: {integrity: sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==}
 
   typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
@@ -517,7 +523,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  pipeable-dom@0.0.13: {}
+  pipeable-dom@0.0.14: {}
 
   postcss@8.4.47:
     dependencies:
@@ -551,7 +557,9 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
-  std-router@0.0.4: {}
+  std-router@0.0.6: {}
+
+  ts-toolbelt@9.6.0: {}
 
   typescript@5.6.3: {}
 

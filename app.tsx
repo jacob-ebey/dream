@@ -1,4 +1,4 @@
-import { component, defineRoutes, layout } from "dream";
+import { component, defineRoutes, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
 
 import spinnerSrc from "./icons/spinner.svg?url";
@@ -6,7 +6,7 @@ import { getUser, unsetUserId } from "./lib/auth.js";
 
 import appCssHref from "./app.css?url";
 
-export default defineRoutes((router) =>
+export const routes = defineRoutes((router) =>
   router
     .use(layout(Layout))
     .route(
@@ -26,7 +26,7 @@ async function logoutAction(request: Request) {
   unsetUserId();
   return new Response("logged out", {
     status: 303,
-    headers: { Location: "/" },
+    headers: { Location: link<typeof routes>("/*", { "*": "" }) },
   });
 }
 
@@ -41,6 +41,16 @@ function Layout({ children }: { children: JSXNode }) {
         <link rel="stylesheet" href={appCssHref} />
       </head>
       <body>
+        <nav>
+          <ul>
+            <li>
+              <a href={link<typeof routes>("/login")}>Login</a>
+            </li>
+            <li>
+              <a href={link<typeof routes>("/chat")}>Chat</a>
+            </li>
+          </ul>
+        </nav>
         {!!user && (
           <form
             action={logoutAction}

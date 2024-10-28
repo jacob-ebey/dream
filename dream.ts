@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import type { JSXElementStructure, JSXNode } from "pipeable-dom/jsx";
+import type { JSXNode } from "pipeable-dom/jsx";
 import { jsx, render } from "pipeable-dom/jsx";
 import type {
   Middleware,
@@ -9,6 +9,7 @@ import type {
   RouteMatch,
   Route,
   Router,
+  ExtractPathnameParams,
 } from "std-router";
 import {
   defineContext,
@@ -23,17 +24,21 @@ export type LayoutComponent = (props: { children: JSXNode }) => JSXNode;
 
 export const component =
   (
-    loadOrComponent: () =>
-      | Promise<{ default: (props: any) => JSXNode }>
+    loadOrComponent:
+      | ((props: any) => Promise<{ default: (props: any) => JSXNode }>)
       | ((props: any) => JSXNode)
-  ): RequestHandler<Renderer<JSXElementStructure>> =>
+  ): RequestHandler<Renderer<JSXNode>> =>
   async (c) => {
-    const mod = await loadOrComponent();
-    if ("default" in mod) {
+    const mod: { default: (props: any) => JSXNode } | JSXNode = await (
+      loadOrComponent as (
+        props: any
+      ) => { default: (props: any) => JSXNode } | JSXNode
+    )({});
+    if (typeof mod === "object" && mod !== null && "default" in mod) {
       const Component = mod.default;
       return c.render(jsx(Component));
     }
-    return c.render(jsx(mod));
+    return c.render(mod);
   };
 
 const layoutContext = defineContext<LayoutComponent[]>();
@@ -45,7 +50,7 @@ export const layout: (Layout: LayoutComponent) => Middleware<never> =
     return next();
   };
 
-const renderer: Renderer<JSXElementStructure> = (c, node, init) => {
+const renderer: Renderer<JSXNode> = (c, node, init) => {
   return new Response(render(node), init);
 };
 
@@ -63,8 +68,8 @@ export function defineRoutes<
     basePath?: BasePath;
     middleware?: Middleware<any>[];
   } = {}
-) {
-  return defineStdRoutes(callback, {
+): RoutesRouter["routes"] {
+  return defineStdRoutes<RoutesRouter, typeof renderer, BasePath>(callback, {
     basePath,
     middleware,
     renderer,
@@ -166,4 +171,18 @@ export async function handleRequest(
   }
 
   return response;
+}
+
+export type RoutePattern<Routes extends ReadonlyArray<Route<any, any>>> =
+  Routes[number]["path"];
+
+export type RouteParams<Routes extends ReadonlyArray<Route<any, any>>> =
+  ExtractPathnameParams<Routes[number]["path"]>;
+
+export function link<Routes extends ReadonlyArray<Route<any, any>>>(
+  pattern: RoutePattern<Routes>,
+  params?: Record<RouteParams<Routes>, string | number | null | undefined>
+): string {
+  // TODO: Implement link generation
+  return "";
 }
