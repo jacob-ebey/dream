@@ -1,21 +1,55 @@
+import * as crypto from "node:crypto";
 import * as stream from "node:stream";
 import type * as webStream from "node:stream/web";
 
+import * as babel from "@babel/core";
 import type { Route } from "std-router";
 import { createServerModuleRunner, defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+import { useActionBabelPlugin } from "./src/use-action.js";
+
 const appEntry = "./example/app.tsx";
+
+declare global {
+  var actionsCache: Record<string, Map<string, string>>;
+}
+
+global.actionsCache = global.actionsCache ?? {};
+
+function countActions() {
+  let count = 0;
+  for (const actions of Object.values(global.actionsCache)) {
+    count += actions.size;
+  }
+  return count;
+}
+
+function serializeActions() {
+  let serialized = "{";
+  for (const [key, value] of Object.entries(global.actionsCache)) {
+    for (const [name, hash] of value) {
+      serialized += `"${hash}": () => import("${key}").then(m => m["${name}"]),`;
+    }
+  }
+  serialized += "}";
+  return serialized;
+}
 
 export default defineConfig({
   builder: {
     async buildApp(builder) {
-      await builder.build(builder.environments.ssr);
+      let lastActionsCount: number;
+      do {
+        lastActionsCount = countActions();
+        await builder.build(builder.environments.ssr);
+      } while (lastActionsCount !== countActions());
     },
   },
   environments: {
     ssr: {
       build: {
+        outDir: "example-dist/server",
         rollupOptions: {
           input: appEntry,
         },
@@ -43,13 +77,79 @@ export default defineConfig({
       },
     },
     {
+      name: "use-action",
+      resolveId(id) {
+        if (id === "virtual:actions") {
+          return "\0virtual:dream-actions";
+        }
+      },
+      load(id) {
+        if (id === "\0virtual:dream-actions") {
+          if (this.environment.mode === "dev") {
+            // TODO: Don't hash IDs in dev mode and use a `/mod-id.ts#export` format
+            // This only works because it's in the same process. For ENVs we need to
+            // do this in a way that can be shared between processes.
+            return `
+              export async function getAction(hash) {
+                const actions = Object.fromEntries(
+                  Object.entries(actionsCache).flatMap(([id, exp]) =>
+                    Array.from(exp).map(([exp, hash]) => [hash, { exp, id }])
+                  )
+                );
+                if (!actions[hash]) {
+                  return;
+                }
+                return import(/* @vite-ignore */ actions[hash].id).then(m => m[actions[hash].exp]);
+              }
+            `;
+          }
+
+          return `
+            const actions = ${serializeActions()};
+            export async function getAction(hash) {
+              return await actions[hash]?.();
+            }
+          `;
+        }
+      },
+      transform(code, id) {
+        if (!code.includes("use action")) return;
+
+        const actions = (actionsCache[id] ??= new Map());
+
+        const transformed = babel.transformSync(code, {
+          configFile: false,
+          plugins: [
+            useActionBabelPlugin({
+              onAction: (name) => {
+                const hash = crypto
+                  .createHash("md5")
+                  .update(`${id}|${code}`)
+                  .digest("hex")
+                  .slice(-6);
+                actions.set(name, hash);
+                return `?_action=${hash}`;
+              },
+            }),
+          ],
+        });
+
+        return typeof transformed?.code === "string"
+          ? {
+              code: transformed.code,
+              map: transformed.map,
+            }
+          : code;
+      },
+    },
+    {
       name: "dev-server",
       configureServer(server) {
         const runner = createServerModuleRunner(server.environments.ssr);
         return () => {
           server.middlewares.use(async (req, res, next) => {
             try {
-              const [dream, mod, urlpattern] = await Promise.all([
+              const [dream, mod] = await Promise.all([
                 runner.import("./src/dream.ts") as Promise<
                   typeof import("dream")
                 >,

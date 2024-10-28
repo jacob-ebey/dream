@@ -1,6 +1,10 @@
 import * as babel from "@babel/core";
 
-export default function useActionBabelPlugin(): babel.PluginObj {
+export function useActionBabelPlugin({
+  onAction,
+}: {
+  onAction: (name: string) => string;
+}): babel.PluginObj {
   const { types: t } = babel;
 
   return {
@@ -89,7 +93,7 @@ export default function useActionBabelPlugin(): babel.PluginObj {
                   t.identifier(functionName),
                   t.identifier("$$action")
                 ),
-                t.stringLiteral(exportedName)
+                t.stringLiteral(onAction(exportedName))
               )
             ),
           ];

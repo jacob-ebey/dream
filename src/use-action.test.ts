@@ -2,11 +2,11 @@
 import { expect, test, describe } from "vitest";
 import { transform } from "@babel/core";
 
-import actionFunctionTransformer from "./use-action.js";
+import { useActionBabelPlugin } from "./use-action.js";
 
 function transformCode(code: string) {
   return transform(code, {
-    plugins: [actionFunctionTransformer()],
+    plugins: [useActionBabelPlugin({ onAction: (name) => name })],
     configFile: false,
   })?.code;
 }

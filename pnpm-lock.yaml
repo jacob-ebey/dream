@@ -12,8 +12,8 @@ importers:
   .:
     dependencies:
       pipeable-dom:
-        specifier: 0.0.19
-        version: 0.0.19
+        specifier: 0.0.21
+        version: 0.0.21
       std-router:
         specifier: 0.0.7
         version: 0.0.7
@@ -532,8 +532,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  pipeable-dom@0.0.19:
-    resolution: {integrity: sha512-V4DtD3wNzt32luyZp/pz0kCMhJWcClt18OFpFet9DRmGpzAGpVP5dWpFAMkQ7+XKRvoPNtfDvYYF3o4gg5f0bQ==}
+  pipeable-dom@0.0.21:
+    resolution: {integrity: sha512-aMMjSz0mS7X7Wp24FaZ3yiYSg3wGgXrEjOHidG7xuUYD+o+yG/o0mqXtAievDckARFSRv6N02RIDrjlzXZw1Mw==}
 
   postcss@8.4.47:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
@@ -1109,7 +1109,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  pipeable-dom@0.0.19: {}
+  pipeable-dom@0.0.21: {}
 
   postcss@8.4.47:
     dependencies:

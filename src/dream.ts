@@ -26,6 +26,72 @@ export type ComponentModule = {
   default: (props: any) => JSXNode;
 };
 
+type ActionResult<T> = {
+  value?: T;
+  error?: unknown;
+};
+
+type RequestContext = {
+  actionResults: WeakMap<any, ActionResult<unknown>>;
+  match: RouteMatch;
+  request: Request;
+  session: Session;
+};
+
+const requestContext = new AsyncLocalStorage<RequestContext>();
+
+const getContext = () => {
+  const ctx = requestContext.getStore();
+  if (!ctx) {
+    throw new Error("No request context available");
+  }
+  return ctx;
+};
+
+export const actions =
+  (
+    getAction: (
+      id: string
+    ) => Promise<
+      | null
+      | ((request: Request) => Promise<JSXNode | Response> | JSXNode | Response)
+    >
+  ): Middleware<never> =>
+  async (c, next) => {
+    if (c.request.method === "POST") {
+      const url = new URL(c.request.url);
+      const actionId = url.searchParams.get("_action");
+      const action = actionId ? await getAction(actionId) : null;
+      if (action) {
+        // TODO: Handle progressive enhancement actions here
+        try {
+          const value = await action(c.request);
+
+          if (
+            typeof value === "object" &&
+            value != null &&
+            value instanceof Response
+          ) {
+            return value;
+          }
+
+          getContext().actionResults.set(action, { value });
+        } catch (error) {
+          if (
+            typeof error === "object" &&
+            error != null &&
+            error instanceof Response
+          ) {
+            return error;
+          }
+
+          getContext().actionResults.set(action, { error });
+        }
+      }
+    }
+    return next();
+  };
+
 export const component =
   <const Mod extends ComponentModule>(
     loadOrModule: (() => Promise<Mod>) | Mod
@@ -92,28 +158,13 @@ export interface Session {
   unset(key: string): void;
 }
 
-type RequestContext = {
-  actionResults: WeakMap<any, any>;
-  match: RouteMatch;
-  request: Request;
-  session: Session;
-};
-
-const requestContext = new AsyncLocalStorage<RequestContext>();
-
-const getContext = () => {
-  const ctx = requestContext.getStore();
-  if (!ctx) {
-    throw new Error("No request context available");
-  }
-  return ctx;
-};
-
 export function actionResult<T extends (request: Request) => any>(
   action: T
-): Awaited<ReturnType<T>> | undefined {
+): ActionResult<Awaited<ReturnType<T>>> | undefined {
   const { actionResults } = getContext();
-  return actionResults.get(action);
+  return actionResults.get(action) as
+    | ActionResult<Awaited<ReturnType<T>>>
+    | undefined;
 }
 
 export function getParam(param: string, required: false): string | null;

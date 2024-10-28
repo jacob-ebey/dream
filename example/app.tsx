@@ -1,5 +1,6 @@
-import { component, defineRoutes, layout, link } from "dream";
+import { actions, component, defineRoutes, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
+import { getAction } from "virtual:actions";
 
 import spinnerSrc from "./icons/spinner.svg?url";
 import { getUser, requireUser, unsetUserId } from "./lib/auth.js";
@@ -8,7 +9,7 @@ import appCssHref from "./app.css?url";
 
 export const routes = defineRoutes((router) =>
   router
-    .use(layout(Layout))
+    .use(actions(getAction), layout(Layout))
     .route(
       "/login",
       component(() => import("./login/login.js"))

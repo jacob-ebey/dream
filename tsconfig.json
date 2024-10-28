@@ -2,12 +2,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": [
-      "./src/dream-types.d.ts",
-      "node",
-      "urlpattern-polyfill",
-      "vite/client"
-    ],
+    "types": ["node", "urlpattern-polyfill", "vite/client"],
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

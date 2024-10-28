@@ -34,28 +34,43 @@ export default function Login({
   error?: string;
   username?: string;
 }) {
-  return (
-    actionResult(loginAction) ?? (
-      <>
-        <script async src={enhancementSrc} />
+  const loginResult = actionResult(loginAction);
+  const hasError = !!error || !!loginResult?.error;
 
-        <login-form>
-          <form
-            action={loginAction}
-            method="post"
-            hx-target="self"
-            hx-indicator="self"
-            hx-disabled-elt="input, button"
-          >
+  return !error && loginResult?.value ? (
+    loginResult.value
+  ) : (
+    <>
+      <script async src={enhancementSrc} />
+
+      <login-form>
+        <form
+          action={loginAction}
+          method="post"
+          hx-target="self"
+          hx-indicator="self"
+          hx-disabled-elt="input, button"
+        >
+          <p>
             <label>
               Username:
-              <input name="username" type="text" value={username} />
+              <input
+                name="username"
+                type="text"
+                value={username}
+                autofocus={hasError && !username}
+              />
             </label>
+          </p>
+          <p>
             <label>
               Password:
-              <input name="password" type="password" />
+              <input name="password" type="password" autofocus={!!username} />
             </label>
-            {!!error && <p>{error}</p>}
+          </p>
+          {!!error && <p>{error}</p>}
+          {loginResult?.error && <p>Something went wrong</p>}
+          <p>
             <button type="submit">
               Login
               <img
@@ -66,9 +81,9 @@ export default function Login({
                 height="10"
               />
             </button>
-          </form>
-        </login-form>
-      </>
-    )
+          </p>
+        </form>
+      </login-form>
+    </>
   );
 }

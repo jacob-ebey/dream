@@ -59,7 +59,7 @@ export function validateUser(
     return { ...validated, valid: false, user: null };
   }
 
-  if (username === "admin" && password === "password") {
+  if (username !== "admin" || password !== "password") {
     return {
       ...validated,
       error: "Invalid username or password",

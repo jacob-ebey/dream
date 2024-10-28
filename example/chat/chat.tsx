@@ -34,6 +34,8 @@ export default async function Chat() {
   const user = getUser();
   const messages = chatId ? await getMessages(user.id, chatId) : [];
 
+  const sendMessageResult = actionResult(sendMessageAction);
+
   return (
     <>
       <script async src={enhancementSrc} />
@@ -47,7 +49,10 @@ export default async function Chat() {
             }
             return <BotMessage>{message.text}</BotMessage>;
           })}
-          {actionResult(sendMessageAction)}
+          {sendMessageResult?.value}
+          {sendMessageResult?.error && (
+            <ErrorMessage>Something went wrong</ErrorMessage>
+          )}
           <div class="chat-app__pending-bot-message">
             <BotMessage>...</BotMessage>
           </div>
