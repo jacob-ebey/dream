@@ -7,83 +7,83 @@ import { setUserId, validateUser } from "~/lib/auth.js";
 import enhancementSrc from "./login.enhancement.js?enhancement";
 
 async function loginAction(request: Request) {
-  "use action";
+	"use action";
 
-  const formData = await request.formData();
-  const validated = await validateUser(
-    formData.get("username"),
-    formData.get("password")
-  );
+	const formData = await request.formData();
+	const validated = await validateUser(
+		formData.get("username"),
+		formData.get("password"),
+	);
 
-  if (validated.valid) {
-    setUserId(validated.user.id);
+	if (validated.valid) {
+		setUserId(validated.user.id);
 
-    throw new Response("logged in", {
-      status: 303,
-      headers: { Location: link<typeof routes>("/chat") },
-    });
-  }
+		throw new Response("logged in", {
+			status: 303,
+			headers: { Location: link<typeof routes>("/chat") },
+		});
+	}
 
-  return <Login error={validated.error} username={validated.input.username} />;
+	return <Login error={validated.error} username={validated.input.username} />;
 }
 
 export default function Login({
-  error,
-  username,
+	error,
+	username,
 }: {
-  error?: string;
-  username?: string;
+	error?: string;
+	username?: string;
 }) {
-  const loginResult = actionResult(loginAction);
-  const hasError = !!error || !!loginResult?.error;
+	const loginResult = actionResult(loginAction);
+	const hasError = !!error || !!loginResult?.error;
 
-  return !error && loginResult?.value ? (
-    loginResult.value
-  ) : (
-    <>
-      <script async src={enhancementSrc} />
+	return !error && loginResult?.value ? (
+		loginResult.value
+	) : (
+		<>
+			<script async src={enhancementSrc} />
 
-      <login-form>
-        <form
-          action={loginAction}
-          method="post"
-          hx-target="self"
-          hx-indicator="self"
-          hx-disabled-elt="input, button"
-        >
-          <p>
-            <label>
-              Username:
-              <input
-                name="username"
-                type="text"
-                value={username}
-                autofocus={hasError && !username}
-              />
-            </label>
-          </p>
-          <p>
-            <label>
-              Password:
-              <input name="password" type="password" autofocus={!!username} />
-            </label>
-          </p>
-          {!!error && <p>{error}</p>}
-          {loginResult?.error && <p>Something went wrong</p>}
-          <p>
-            <button type="submit">
-              Login
-              <img
-                class="indicator-show"
-                src={spinnerSrc}
-                alt=""
-                width="10"
-                height="10"
-              />
-            </button>
-          </p>
-        </form>
-      </login-form>
-    </>
-  );
+			<login-form>
+				<form
+					action={loginAction}
+					method="post"
+					hx-target="self"
+					hx-indicator="self"
+					hx-disabled-elt="input, button"
+				>
+					<p>
+						<label>
+							Username:
+							<input
+								name="username"
+								type="text"
+								value={username}
+								autofocus={hasError && !username}
+							/>
+						</label>
+					</p>
+					<p>
+						<label>
+							Password:
+							<input name="password" type="password" autofocus={!!username} />
+						</label>
+					</p>
+					{!!error && <p>{error}</p>}
+					{loginResult?.error && <p>Something went wrong</p>}
+					<p>
+						<button type="submit">
+							Login
+							<img
+								class="indicator-show"
+								src={spinnerSrc}
+								alt=""
+								width="10"
+								height="10"
+							/>
+						</button>
+					</p>
+				</form>
+			</login-form>
+		</>
+	);
 }

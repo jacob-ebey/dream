@@ -1,23 +1,23 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["node", "urlpattern-polyfill", "vite/client"],
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "jsx": "react-jsx",
-    "jsxImportSource": "dream",
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["./example/*"],
-      "dream": ["./src/dream.ts"],
-      "dream/browser": ["./src/dream-browser.ts"],
-      "dream/jsx": ["./src/dream-jsx.ts"],
-      "dream/jsx-runtime": ["./src/dream-jsx.ts"],
-      "dream/jsx-dev-runtime": ["./src/dream-jsx.ts"],
-      "dream/types": ["./src/dream-types.d.ts"]
-    },
-    "noEmit": true
-  }
+	"compilerOptions": {
+		"strict": true,
+		"lib": ["DOM", "DOM.Iterable", "ES2022"],
+		"types": ["node", "urlpattern-polyfill", "vite/client"],
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "dream",
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["./example/*"],
+			"dream": ["./src/dream.ts"],
+			"dream/browser": ["./src/dream-browser.ts"],
+			"dream/jsx": ["./src/dream-jsx.ts"],
+			"dream/jsx-runtime": ["./src/dream-jsx.ts"],
+			"dream/jsx-dev-runtime": ["./src/dream-jsx.ts"],
+			"dream/types": ["./src/dream-types.d.ts"]
+		},
+		"noEmit": true
+	}
 }
