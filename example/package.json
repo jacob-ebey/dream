@@ -1,0 +1,22 @@
+{
+	"private": true,
+	"name": "example",
+	"type": "module",
+	"license": "ISC",
+	"scripts": {
+		"build": "vite build --app",
+		"dev": "vite"
+	},
+	"dependencies": {
+		"@mjackson/node-fetch-server": "0.1.0",
+		"dream": "workspace:*",
+		"urlpattern-polyfill": "10.0.0"
+	},
+	"devDependencies": {
+		"@dream/vite": "workspace:*",
+		"@types/node": "^20",
+		"typescript": "5.6.3",
+		"vite": "6.0.0-beta.5",
+		"vite-tsconfig-paths": "5.0.1"
+	}
+}

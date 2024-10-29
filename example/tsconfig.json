@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"lib": ["DOM", "DOM.Iterable", "ES2022"],
+		"types": [
+			"@dream/vite/types",
+			"node",
+			"vite/client"
+		],
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"jsx": "react-jsx",
+		"jsxImportSource": "dream",
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["./src/*"]
+		},
+		"noEmit": true
+	}
+}

@@ -83,6 +83,18 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 								}
 							},
 						},
+						environments: {
+							client: {
+								build: {
+									outDir: "dist/client",
+								},
+							},
+							ssr: {
+								build: {
+									outDir: "dist/server",
+								},
+							},
+						},
 					},
 					config,
 				);

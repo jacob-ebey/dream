@@ -1,21 +1,14 @@
+import dream from "@dream/vite";
 import { createRequestListener } from "@mjackson/node-fetch-server";
 import { createServerModuleRunner, defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
-const appEntry = "./example/app.tsx";
-
-import dream from "./src/dream-vite.js";
+const appEntry = "./src/app.tsx";
 
 export default defineConfig({
 	environments: {
-		client: {
-			build: {
-				outDir: "example-dist/client",
-			},
-		},
 		ssr: {
 			build: {
-				outDir: "example-dist/server",
 				rollupOptions: {
 					input: appEntry,
 				},
@@ -33,12 +26,8 @@ export default defineConfig({
 				return () => {
 					const listener = createRequestListener(async (request) => {
 						const [dream, mod] = await Promise.all([
-							runner.import("./src/dream.ts") as Promise<
-								typeof import("dream")
-							>,
-							runner.import(appEntry) as Promise<
-								typeof import("./example/app.js")
-							>,
+							runner.import("dream") as Promise<typeof import("dream")>,
+							runner.import(appEntry) as Promise<typeof import("./src/app.js")>,
 							runner.import("urlpattern-polyfill"),
 						]);
 

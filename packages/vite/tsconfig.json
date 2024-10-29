@@ -14,15 +14,6 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "dream",
 		"baseUrl": ".",
-		"paths": {
-			"~/*": ["./example/*"],
-			"dream": ["./src/dream.ts"],
-			"dream/browser": ["./src/dream-browser.ts"],
-			"dream/jsx": ["./src/dream-jsx.ts"],
-			"dream/jsx-runtime": ["./src/dream-jsx.ts"],
-			"dream/jsx-dev-runtime": ["./src/dream-jsx.ts"],
-			"dream/types": ["./src/dream-types.d.ts"]
-		},
 		"noEmit": true
 	}
 }
