@@ -86,20 +86,11 @@ export default defineConfig({
       load(id) {
         if (id === "\0virtual:dream-actions") {
           if (this.environment.mode === "dev") {
-            // TODO: Don't hash IDs in dev mode and use a `/mod-id.ts#export` format
-            // This only works because it's in the same process. For ENVs we need to
-            // do this in a way that can be shared between processes.
             return `
               export async function getAction(hash) {
-                const actions = Object.fromEntries(
-                  Object.entries(actionsCache).flatMap(([id, exp]) =>
-                    Array.from(exp).map(([exp, hash]) => [hash, { exp, id }])
-                  )
-                );
-                if (!actions[hash]) {
-                  return;
-                }
-                return import(/* @vite-ignore */ actions[hash].id).then(m => m[actions[hash].exp]);
+                const [id, ...restExp] = hash.split("#");
+                const name = restExp.join("#");
+                return await import(/* @vite-ignore */ id).then(m => m[name]);
               }
             `;
           }
@@ -122,11 +113,16 @@ export default defineConfig({
           plugins: [
             useActionBabelPlugin({
               onAction: (name) => {
+                if (this.environment.mode === "dev") {
+                  const hash = `${id}%23${name}`;
+                  actions.set(name, hash);
+                  return `?_action=${hash}`;
+                }
                 const hash = crypto
                   .createHash("md5")
                   .update(`${id}|${code}`)
                   .digest("hex")
-                  .slice(-6);
+                  .slice(-8);
                 actions.set(name, hash);
                 return `?_action=${hash}`;
               },
