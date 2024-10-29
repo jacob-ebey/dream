@@ -4,28 +4,21 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 const appEntry = "./example/app.tsx";
 
-import dream, { countActions } from "./src/dream-vite.js";
+import dream from "./src/dream-vite.js";
 
 export default defineConfig({
-	builder: {
-		async buildApp(builder) {
-			let lastActionsCount: number;
-			do {
-				lastActionsCount = countActions();
-				await builder.build(builder.environments.ssr);
-			} while (lastActionsCount !== countActions());
-		},
-	},
 	environments: {
+		client: {
+			build: {
+				outDir: "example-dist/client",
+			},
+		},
 		ssr: {
 			build: {
 				outDir: "example-dist/server",
 				rollupOptions: {
 					input: appEntry,
 				},
-			},
-			resolve: {
-				externalConditions: ["node", "module-sync"],
 			},
 		},
 	},

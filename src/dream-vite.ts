@@ -1,48 +1,114 @@
 import * as crypto from "node:crypto";
 
 import * as babel from "@babel/core";
-import type * as vite from "vite";
+import * as vite from "vite";
 
 import { useActionBabelPlugin } from "./use-action.js";
 
-declare global {
-	var actionsCache: Record<string, Map<string, string>>;
-}
-
-global.actionsCache = global.actionsCache ?? {};
-
 export default function dreamVitePlugin(): vite.PluginOption[] {
+	let actionsCache: Record<string, Map<string, string>> = {};
+	let enhancementsCache: Map<
+		string,
+		{ entry: string; preloads: string[] } | null
+	> = new Map();
+
+	const countActions = () => {
+		let count = 0;
+		for (const actions of Object.values(actionsCache)) {
+			count += actions.size;
+		}
+		return count;
+	};
+
+	const serializeActions = () => {
+		let serialized = "{";
+		for (const [key, value] of Object.entries(actionsCache)) {
+			for (const [name, hash] of value) {
+				serialized += `"${hash}": () => import("${key}").then(m => m["${name}"]),`;
+			}
+		}
+		serialized += "}";
+		return serialized;
+	};
+
 	return [
+		{
+			name: "dream",
+			config(config) {
+				return vite.mergeConfig<typeof config, typeof config>(
+					{
+						builder: {
+							sharedConfigBuild: true,
+							sharedPlugins: true,
+							async buildApp(builder) {
+								let lastActionsCount: number;
+								let lastEnhancementsCount: number;
+								do {
+									lastActionsCount = countActions();
+									lastEnhancementsCount = enhancementsCache.size;
+									await builder.build(builder.environments.ssr);
+								} while (
+									lastActionsCount !== countActions() ||
+									lastEnhancementsCount !== enhancementsCache.size
+								);
+
+								builder.config.environments.client.build.rollupOptions.input =
+									Array.from(enhancementsCache.keys());
+								if (
+									builder.config.environments.client.build.rollupOptions
+										.input ||
+									enhancementsCache.size
+								) {
+									const clientBuildOutput = (await builder.build(
+										builder.environments.client,
+									)) as vite.Rollup.RollupOutput;
+									clientBuildOutput.output.find((output) => {
+										if (
+											output.type !== "chunk" ||
+											!output.isEntry ||
+											!output.facadeModuleId
+										)
+											return false;
+										if (enhancementsCache.has(output.facadeModuleId)) {
+											enhancementsCache.set(output.facadeModuleId, {
+												entry: output.fileName,
+												preloads: output.imports,
+											});
+										}
+									});
+								}
+
+								if (enhancementsCache.size) {
+									await builder.build(builder.environments.ssr);
+								}
+							},
+						},
+					},
+					config,
+				);
+			},
+		},
 		{
 			name: "enhancement",
 			enforce: "pre",
-			resolveId(id, importer) {
+			async resolveId(id, importer) {
 				if (id.endsWith("?enhancement")) {
-					return `\0virtual:enhancement:${id.slice(0, -11)}?importer=${importer || ""}`;
+					const resolvedId = await this.resolve(id.slice(0, -12), importer, {
+						skipSelf: true,
+					});
+					if (!resolvedId) return;
+					enhancementsCache.set(resolvedId.id, null);
+					return `\0virtual:enhancement:${resolvedId.id}`;
 				}
 			},
-			async load(id) {
+			load(id) {
 				if (id.startsWith("\0virtual:enhancement:")) {
-					const [modId, ...restImporter] = id.slice(21).split("?");
-					const importer = restImporter.join("?").slice(10);
+					const modId = id.slice(21);
 					if (this.environment.mode === "dev") {
-						const resolvedId = await this.resolve(
-							modId,
-							importer ?? undefined,
-							{
-								skipSelf: true,
-							},
-						);
-						if (!resolvedId) {
-							throw new Error(
-								`Could not resolve enhancement ${modId} from ${importer}`,
-							);
-						}
-
-						return `export default "${resolvedId.id}";`;
+						return `export default "${modId}";`;
 					}
 
-					throw new Error("TODO: implement enhancement loading in production");
+					return `export default "${enhancementsCache.get(modId)?.entry}"`;
 				}
 			},
 		},
@@ -109,23 +175,4 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 			},
 		},
 	];
-}
-
-export function countActions() {
-	let count = 0;
-	for (const actions of Object.values(global.actionsCache)) {
-		count += actions.size;
-	}
-	return count;
-}
-
-function serializeActions() {
-	let serialized = "{";
-	for (const [key, value] of Object.entries(global.actionsCache)) {
-		for (const [name, hash] of value) {
-			serialized += `"${hash}": () => import("${key}").then(m => m["${name}"]),`;
-		}
-	}
-	serialized += "}";
-	return serialized;
 }

@@ -12,11 +12,11 @@ importers:
   .:
     dependencies:
       pipeable-dom:
-        specifier: 0.0.22
-        version: 0.0.22
+        specifier: 0.0.25
+        version: 0.0.25
       std-router:
-        specifier: 0.0.7
-        version: 0.0.7
+        specifier: 0.0.8
+        version: 0.0.8
       ts-toolbelt:
         specifier: 9.6.0
         version: 9.6.0
@@ -600,8 +600,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  pipeable-dom@0.0.22:
-    resolution: {integrity: sha512-rW4FQUN0emQt0wBhdi0UogCjVkRDObNWir+GfgYMBVPBQfXJMrkS9zsUm1XEHn3QBcxYv0j5Ds6PI1thq4EXSg==}
+  pipeable-dom@0.0.25:
+    resolution: {integrity: sha512-GGSB9P5JCYWHk3zQ5k3AdDrVSEzUhVe7N6i1CDeFEonROTRKezo0oZwnkTvz9PNp4bSGiTwvZ0MMWq3lG/HHdw==}
 
   postcss@8.4.47:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
@@ -629,8 +629,8 @@ packages:
   std-env@3.7.0:
     resolution: {integrity: sha512-JPbdCEQLj1w5GilpiHAx3qJvFndqybBysA3qUOnznweH4QbNYUsW/ea8QzSrnh0vNsezMMw5bcVool8lM0gwzg==}
 
-  std-router@0.0.7:
-    resolution: {integrity: sha512-Z8/YX8nnGUkDDJop1j1IHuTTwQrjYA9BT+ZagM6WPGdviMLw5uk100J2AUihA4jKQKY8pvqhJROm3RknR3rN7Q==}
+  std-router@0.0.8:
+    resolution: {integrity: sha512-dPzzQ7rBVa5q1r/Gs1tHburPnq8lEttjcdDyXhfStd8pvQ1AsJFv/11HxVneiAw0WW6lUtNpcS50oxh8MluLPg==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -1216,7 +1216,7 @@ snapshots:
 
   picocolors@1.1.1: {}
 
-  pipeable-dom@0.0.22: {}
+  pipeable-dom@0.0.25: {}
 
   postcss@8.4.47:
     dependencies:
@@ -1258,7 +1258,7 @@ snapshots:
 
   std-env@3.7.0: {}
 
-  std-router@0.0.7: {}
+  std-router@0.0.8: {}
 
   tinybench@2.9.0: {}
 
