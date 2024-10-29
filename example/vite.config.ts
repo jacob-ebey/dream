@@ -11,6 +11,12 @@ export default defineConfig({
 			build: {
 				rollupOptions: {
 					input: appEntry,
+					external: [
+						"dream",
+						"dream/jsx",
+						"dream/jsx-runtime",
+						"dream/jsx-dev-runtime",
+					],
 				},
 			},
 		},

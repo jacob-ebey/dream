@@ -62,20 +62,19 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 									const clientBuildOutput = (await builder.build(
 										builder.environments.client,
 									)) as vite.Rollup.RollupOutput;
-									clientBuildOutput.output.find((output) => {
+									for (const output of clientBuildOutput.output) {
 										if (
 											output.type !== "chunk" ||
 											!output.isEntry ||
 											!output.facadeModuleId
 										)
-											return false;
-										if (enhancementsCache.has(output.facadeModuleId)) {
-											enhancementsCache.set(output.facadeModuleId, {
-												entry: output.fileName,
-												preloads: output.imports,
-											});
-										}
-									});
+											continue;
+
+										enhancementsCache.set(output.facadeModuleId, {
+											entry: output.fileName,
+											preloads: output.imports,
+										});
+									}
 								}
 
 								if (enhancementsCache.size) {
@@ -86,11 +85,13 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 						environments: {
 							client: {
 								build: {
+									assetsInlineLimit: 0,
 									outDir: "dist/client",
 								},
 							},
 							ssr: {
 								build: {
+									assetsInlineLimit: 0,
 									outDir: "dist/server",
 								},
 							},
@@ -109,7 +110,10 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 						skipSelf: true,
 					});
 					if (!resolvedId) return;
-					enhancementsCache.set(resolvedId.id, null);
+					enhancementsCache.set(
+						resolvedId.id,
+						enhancementsCache.get(resolvedId.id) ?? null,
+					);
 					return `\0virtual:enhancement:${resolvedId.id}`;
 				}
 			},
@@ -120,7 +124,12 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 						return `export default "${modId}";`;
 					}
 
-					return `export default "${enhancementsCache.get(modId)?.entry}"`;
+					const enhancement = enhancementsCache.get(modId);
+
+					return `
+						export default "${enhancement?.entry}";
+						export const imports = ${JSON.stringify(enhancement?.preloads ?? [])};
+					`;
 				}
 			},
 		},

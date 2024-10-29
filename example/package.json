@@ -10,6 +10,7 @@
 	"dependencies": {
 		"@mjackson/node-fetch-server": "0.1.0",
 		"dream": "workspace:*",
+		"mime-types": "2.1.35",
 		"urlpattern-polyfill": "10.0.0"
 	},
 	"devDependencies": {
