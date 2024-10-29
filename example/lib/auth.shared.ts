@@ -13,6 +13,7 @@ export function validateLoginInput(
 	  } {
 	const input = { username: "" };
 	if (typeof username === "string") {
+		username = username.trim();
 		input.username = username;
 	}
 

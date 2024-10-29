@@ -59,6 +59,7 @@ export const actions =
 	): Middleware<never> =>
 	async (c, next) => {
 		if (c.request.method === "POST") {
+			const enhanced = c.request.headers.get("HX-Request") === "true";
 			const url = new URL(c.request.url);
 			const actionId = url.searchParams.get("_action");
 			const action = actionId ? await getAction(actionId) : null;
@@ -75,6 +76,10 @@ export const actions =
 						return value;
 					}
 
+					if (enhanced) {
+						return renderer(c, value);
+					}
+
 					getContext().actionResults.set(action, { value });
 				} catch (error) {
 					if (
@@ -86,6 +91,8 @@ export const actions =
 					}
 
 					getContext().actionResults.set(action, { error });
+
+					// TODO: Handle errors somehow that doesn't leave apps in weird states when progressive enhancement is enabled
 				}
 			}
 		}

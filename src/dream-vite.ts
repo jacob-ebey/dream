@@ -16,14 +16,33 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 		{
 			name: "enhancement",
 			enforce: "pre",
-			resolveId(id) {
+			resolveId(id, importer) {
 				if (id.endsWith("?enhancement")) {
-					return "\0virtual:enhancement";
+					return `\0virtual:enhancement:${id.slice(0, -11)}?importer=${importer || ""}`;
 				}
 			},
-			load(id) {
-				if (id === "\0virtual:enhancement") {
-					return `export default "/virtual-enhancement.js";`;
+			async load(id) {
+				if (id.startsWith("\0virtual:enhancement:")) {
+					const [modId, ...restImporter] = id.slice(21).split("?");
+					const importer = restImporter.join("?").slice(10);
+					if (this.environment.mode === "dev") {
+						const resolvedId = await this.resolve(
+							modId,
+							importer ?? undefined,
+							{
+								skipSelf: true,
+							},
+						);
+						if (!resolvedId) {
+							throw new Error(
+								`Could not resolve enhancement ${modId} from ${importer}`,
+							);
+						}
+
+						return `export default "${resolvedId.id}";`;
+					}
+
+					throw new Error("TODO: implement enhancement loading in production");
 				}
 			},
 		},

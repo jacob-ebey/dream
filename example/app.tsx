@@ -1,7 +1,10 @@
+// @ts-expect-error - TODO: add virtual:actions type defs
 import { getAction } from "virtual:actions";
 import { actions, component, defineRoutes, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
 
+// @ts-expect-error - TODO: add ?enhancement type defs
+import enhancementSrc from "./app.enhancement.ts?enhancement";
 import spinnerSrc from "./icons/spinner.svg?url";
 import { getUser, requireUser, unsetUserId } from "./lib/auth.js";
 
@@ -46,6 +49,7 @@ function Layout({ children }: { children: JSXNode }) {
 				<meta charset="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 				<link rel="stylesheet" href={appCssHref} />
+				<script async type="module" src={enhancementSrc} />
 			</head>
 			<body>
 				<nav>

@@ -3,6 +3,7 @@ import { actionResult, getParam } from "dream";
 import { getUser } from "~/lib/auth.js";
 
 import stylesHref from "./chat.css?url";
+// @ts-expect-error - TODO: add ?enhancement type defs
 import enhancementSrc from "./chat.enhancement.tsx?enhancement";
 import { getMessages, validateAndSendChatMessage } from "./chat.server.js";
 import { BotMessage, ErrorMessage, UserMessage } from "./chat.shared.js";
@@ -38,8 +39,8 @@ export default async function Chat() {
 
 	return (
 		<>
-			<script async src={enhancementSrc} />
 			<link rel="stylesheet" href={stylesHref} />
+			<script async type="module" src={enhancementSrc} />
 
 			<chat-app>
 				<div class="chat-app__messages">

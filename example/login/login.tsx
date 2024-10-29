@@ -4,6 +4,7 @@ import type { routes } from "~/app.js";
 import spinnerSrc from "~/icons/spinner.svg?url";
 import { setUserId, validateUser } from "~/lib/auth.js";
 
+// @ts-expect-error - TODO: add ?enhancement type defs
 import enhancementSrc from "./login.enhancement.js?enhancement";
 
 async function loginAction(request: Request) {
@@ -41,7 +42,7 @@ export default function Login({
 		loginResult.value
 	) : (
 		<>
-			<script async src={enhancementSrc} />
+			<script async type="module" src={enhancementSrc} />
 
 			<login-form>
 				<form
@@ -55,6 +56,7 @@ export default function Login({
 						<label>
 							Username:
 							<input
+								required
 								name="username"
 								type="text"
 								value={username}
@@ -65,7 +67,12 @@ export default function Login({
 					<p>
 						<label>
 							Password:
-							<input name="password" type="password" autofocus={!!username} />
+							<input
+								required
+								name="password"
+								type="password"
+								autofocus={!!username}
+							/>
 						</label>
 					</p>
 					{!!error && <p>{error}</p>}

@@ -25,7 +25,6 @@ export default defineConfig({
 				},
 			},
 			resolve: {
-				conditions: ["node", "module-sync"],
 				externalConditions: ["node", "module-sync"],
 			},
 		},

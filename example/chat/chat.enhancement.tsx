@@ -10,7 +10,7 @@ class ChatForm extends HTMLElement {
 		const promptInput = form.querySelector(
 			"input[name=prompt]",
 		) as HTMLInputElement;
-		promptInput.addEventListener("change", () => {
+		promptInput.addEventListener("input", () => {
 			promptInput.setCustomValidity("");
 		});
 	}
@@ -28,6 +28,7 @@ class ChatForm extends HTMLElement {
 
 		if (!validated.valid) {
 			promptInput.setCustomValidity(validated.error);
+			promptInput.reportValidity();
 			event.preventDefault();
 			return;
 		}

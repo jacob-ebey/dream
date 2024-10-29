@@ -21,7 +21,7 @@ export const requireUser: Middleware<any> = (_, next) => {
 	const user = getUser(false);
 	if (!user) {
 		return new Response("Unauthorized", {
-			status: 302,
+			status: 303,
 			headers: { Location: "/login" },
 		});
 	}

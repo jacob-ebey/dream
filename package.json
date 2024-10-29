@@ -9,7 +9,7 @@
 		"test": "vitest"
 	},
 	"dependencies": {
-		"pipeable-dom": "0.0.21",
+		"pipeable-dom": "0.0.22",
 		"std-router": "0.0.7",
 		"ts-toolbelt": "9.6.0",
 		"urlpattern-polyfill": "10.0.0"

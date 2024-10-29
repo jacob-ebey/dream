@@ -7,18 +7,18 @@ class LoginForm extends HTMLElement {
 		const form = this.querySelector("form") as HTMLFormElement;
 		form.addEventListener("submit", this.handleSubmit);
 
-		const passwordInput = form.querySelector(
-			"input[name=password]",
+		const input = form.querySelector(
+			"input[name=username]",
 		) as HTMLInputElement;
-		passwordInput.addEventListener("change", () => {
-			passwordInput.setCustomValidity("");
+		input.addEventListener("input", () => {
+			input.setCustomValidity("");
 		});
 	}
 
 	handleSubmit(event: SubmitEvent) {
 		const form = event.target as HTMLFormElement;
-		const passwordInput = form.querySelector(
-			"input[name=password]",
+		const input = form.querySelector(
+			"input[name=username]",
 		) as HTMLInputElement;
 
 		const formData = new FormData(form, event.submitter);
@@ -28,7 +28,9 @@ class LoginForm extends HTMLElement {
 		const validated = validateLoginInput(username, password);
 
 		if (!validated.valid) {
-			passwordInput.setCustomValidity(validated.error);
+			input.setCustomValidity(validated.error);
+			input.reportValidity();
+
 			event.preventDefault();
 			return;
 		}
