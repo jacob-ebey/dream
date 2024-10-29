@@ -3,11 +3,6 @@ import { defineElement } from "dream/browser";
 import { validateLoginInput } from "~/lib/auth.shared.js";
 
 class LoginForm extends HTMLElement {
-	constructor() {
-		super();
-		this.attachInternals();
-	}
-
 	connectedCallback() {
 		const form = this.querySelector("form") as HTMLFormElement;
 		form.addEventListener("submit", this.handleSubmit);
