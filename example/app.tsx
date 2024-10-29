@@ -12,11 +12,6 @@ import appCssHref from "./app.css?url";
 
 export const routes = defineRoutes((router) =>
 	router
-		.use(actions(getAction), layout(Layout))
-		.route(
-			"/login",
-			component(() => import("./login/login.js")),
-		)
 		.mount(
 			"/",
 			...defineRoutes((router) =>
@@ -25,6 +20,11 @@ export const routes = defineRoutes((router) =>
 					component(() => import("./chat/chat.js")),
 				),
 			),
+		)
+		.use(actions(getAction), layout(Layout))
+		.route(
+			"/login",
+			component(() => import("./login/login.js")),
 		)
 		.route("/", component({ default: Home }))
 		.route("*", component({ default: NotFound })),
