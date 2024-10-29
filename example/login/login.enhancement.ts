@@ -3,15 +3,28 @@ import { defineElement } from "dream/browser";
 import { validateLoginInput } from "~/lib/auth.shared.js";
 
 class LoginForm extends HTMLElement {
+	constructor() {
+		super();
+		this.attachInternals();
+	}
+
 	connectedCallback() {
 		const form = this.querySelector("form") as HTMLFormElement;
 		form.addEventListener("submit", this.handleSubmit);
 
-		const input = form.querySelector(
+		const usernameInput = form.querySelector(
 			"input[name=username]",
 		) as HTMLInputElement;
-		input.addEventListener("input", () => {
-			input.setCustomValidity("");
+		usernameInput.addEventListener("input", () => {
+			usernameInput.setCustomValidity("");
+			passwordInput.setCustomValidity("");
+		});
+		const passwordInput = form.querySelector(
+			"input[name=password]",
+		) as HTMLInputElement;
+		passwordInput.addEventListener("input", () => {
+			usernameInput.setCustomValidity("");
+			passwordInput.setCustomValidity("");
 		});
 	}
 

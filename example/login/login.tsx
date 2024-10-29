@@ -60,6 +60,7 @@ export default function Login({
 								name="username"
 								type="text"
 								value={username}
+								autocomplete="username"
 								autofocus={hasError && !username}
 							/>
 						</label>
@@ -71,6 +72,7 @@ export default function Login({
 								required
 								name="password"
 								type="password"
+								autocomplete="current-password"
 								autofocus={!!username}
 							/>
 						</label>

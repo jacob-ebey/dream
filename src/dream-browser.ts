@@ -6,13 +6,7 @@ export function defineElement(
 	tagName: string,
 	Constructor: CustomElementConstructor,
 ) {
-	if (import.meta.env.DEV && customElements.get(tagName)) {
-		console.log(
-			`Element with tag name "${tagName}" already defined. Reloading...`,
-		);
-		window.location.reload();
-		return;
-	}
+	// TODO: Handle HMR
 	customElements.define(tagName, Constructor);
 }
 
@@ -30,6 +24,7 @@ export function swap(
 	if (target === window || target === document) {
 		target = document.body;
 	}
+
 	return baseSwap(target as Element, swap, newContent);
 }
 
@@ -48,8 +43,8 @@ export function installBrowserRuntime() {
 		const url = new URL(anchor.href, window.location.href);
 		if (url.origin !== window.location.origin) return;
 
-		const swapTarget = anchor.getAttribute("hx-target") || "body";
-		const swapMethod = anchor.getAttribute("hx-swap") || "innerHTML";
+		let swapTarget = anchor.getAttribute("hx-target") || "body";
+		let swapMethod = anchor.getAttribute("hx-swap") || "innerHTML";
 		// TODO: Implement hx-sync
 
 		event.preventDefault();
@@ -58,6 +53,18 @@ export function installBrowserRuntime() {
 			headers: { "HX-Request": "true" },
 		}).then((response) => {
 			history.pushState(null, "", response.url);
+			if (response.redirected) {
+				swapTarget = "body";
+				swapMethod = "innerHTML";
+			}
+
+			if (typeof document.startViewTransition !== "undefined") {
+				const transition = document.startViewTransition(() =>
+					swap(anchor, swapTarget, swapMethod as SwapType, response),
+				);
+				return transition.finished;
+			}
+
 			return swap(anchor, swapTarget, swapMethod as SwapType, response);
 		});
 	});
@@ -71,25 +78,24 @@ export function installBrowserRuntime() {
 						? event.target.closest("form")
 						: null
 				: null;
-		if (
-			event.defaultPrevented ||
-			form == null ||
-			!(form ? form?.checkValidity() : true)
-		) {
-			console.log("form or default prevented");
+		if (event.defaultPrevented || form == null) {
 			return;
 		}
 
 		const url = new URL(form.action, window.location.href);
 		if (url.origin !== window.location.origin) {
-			console.log("origin mismatch");
+			return;
+		}
+
+		if (!form.checkValidity()) {
+			event.preventDefault();
 			return;
 		}
 
 		const method = form.method.toUpperCase();
 
-		const swapTarget = form.getAttribute("hx-target") || "body";
-		const swapMethod = form.getAttribute("hx-swap") || "innerHTML";
+		let swapTarget = form.getAttribute("hx-target") || "body";
+		let swapMethod = form.getAttribute("hx-swap") || "innerHTML";
 
 		let body: FormData | null = null;
 		if (method === "POST") {
@@ -112,6 +118,18 @@ export function installBrowserRuntime() {
 			body,
 		}).then((response) => {
 			history.pushState(null, "", response.url);
+			if (response.redirected) {
+				swapTarget = "body";
+				swapMethod = "innerHTML";
+			}
+
+			if (typeof document.startViewTransition !== "undefined") {
+				const transition = document.startViewTransition(() =>
+					swap(form, swapTarget, swapMethod as SwapType, response),
+				);
+				return transition.finished;
+			}
+
 			return swap(form, swapTarget, swapMethod as SwapType, response);
 		});
 	});
