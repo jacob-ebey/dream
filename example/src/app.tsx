@@ -8,7 +8,10 @@ import enhancementSrc from "./app.enhancement.ts?enhancement";
 import spinnerSrc from "./icons/spinner.svg?url";
 import { getUser, requireUser, unsetUserId } from "./lib/auth.js";
 
-import appCssHref from "./app.css?url";
+// @ts-expect-error - TODO: add ?enhancement type defs
+import appCssHref from "./app.css?enhancement";
+
+console.log({ appCssHref });
 
 export const routes = defineRoutes((router) =>
 	router

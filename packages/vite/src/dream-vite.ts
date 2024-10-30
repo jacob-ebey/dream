@@ -1,4 +1,5 @@
 import * as crypto from "node:crypto";
+import * as path from "node:path";
 
 import * as babel from "@babel/core";
 import * as vite from "vite";
@@ -39,7 +40,7 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 					{
 						builder: {
 							sharedConfigBuild: true,
-							sharedPlugins: true,
+							// sharedPlugins: true,
 							async buildApp(builder) {
 								let lastActionsCount: number;
 								let lastEnhancementsCount: number;
@@ -64,21 +65,38 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 									)) as vite.Rollup.RollupOutput;
 									for (const output of clientBuildOutput.output) {
 										if (
-											output.type !== "chunk" ||
-											!output.isEntry ||
-											!output.facadeModuleId
-										)
+											(output.type !== "chunk" ||
+												!output.isEntry ||
+												!output.facadeModuleId) &&
+											(output.type !== "asset" ||
+												!output.originalFileNames?.[0])
+										) {
 											continue;
+										}
 
-										enhancementsCache.set(output.facadeModuleId, {
+										const entry = path.resolve(
+											builder.config.root,
+											(output as any).originalFileNames?.[0] ??
+												(output as any).facadeModuleId,
+										);
+										const preloads = (output as any).imports ?? [];
+
+										// console.log({ facadeModuleId: output.facadeModuleId });
+										enhancementsCache.set(entry, {
 											entry: output.fileName,
-											preloads: output.imports,
+											preloads,
 										});
 									}
 								}
 
 								if (enhancementsCache.size) {
 									await builder.build(builder.environments.ssr);
+								}
+
+								for (const [name, enhancement] of enhancementsCache) {
+									if (!enhancement) {
+										throw new Error(`Missing enhancement for ${name}`);
+									}
 								}
 							},
 						},
@@ -114,14 +132,21 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 						resolvedId.id,
 						enhancementsCache.get(resolvedId.id) ?? null,
 					);
-					return `\0virtual:enhancement:${resolvedId.id}`;
+					return {
+						id: `\0virtual:enhancement:${resolvedId.id}\0`,
+						resolvedBy: "enhancement",
+					};
 				}
 			},
 			load(id) {
 				if (id.startsWith("\0virtual:enhancement:")) {
-					const modId = id.slice(21);
+					const modId = id.slice(21, -1);
+
 					if (this.environment.mode === "dev") {
-						return `export default "${modId}";`;
+						return `
+							export default "${modId}";
+							export const imports = [];
+						`;
 					}
 
 					const enhancement = enhancementsCache.get(modId);

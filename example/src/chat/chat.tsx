@@ -2,7 +2,8 @@ import { actionResult, getParam } from "dream";
 
 import { getUser } from "~/lib/auth.js";
 
-import stylesHref from "./chat.css?url";
+// @ts-expect-error - TODO: add ?enhancement type defs
+import stylesHref from "./chat.css?enhancement";
 // @ts-expect-error - TODO: add ?enhancement type defs
 import enhancementSrc from "./chat.enhancement.tsx?enhancement";
 import { getMessages, validateAndSendChatMessage } from "./chat.server.js";
