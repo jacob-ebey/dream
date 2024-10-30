@@ -81,7 +81,6 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 										);
 										const preloads = (output as any).imports ?? [];
 
-										// console.log({ facadeModuleId: output.facadeModuleId });
 										enhancementsCache.set(entry, {
 											entry: output.fileName,
 											preloads,

@@ -11,8 +11,6 @@ import { getUser, requireUser, unsetUserId } from "./lib/auth.js";
 // @ts-expect-error - TODO: add ?enhancement type defs
 import appCssHref from "./app.css?enhancement";
 
-console.log({ appCssHref });
-
 export const routes = defineRoutes((router) =>
 	router
 		.mount(
