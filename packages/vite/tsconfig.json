@@ -2,12 +2,7 @@
 	"compilerOptions": {
 		"strict": true,
 		"lib": ["DOM", "DOM.Iterable", "ES2022"],
-		"types": [
-			"dom-view-transitions",
-			"node",
-			"urlpattern-polyfill",
-			"vite/client"
-		],
+		"types": ["node", "vite/client"],
 		"target": "ES2022",
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
