@@ -2,6 +2,8 @@
 import { getAction } from "virtual:actions";
 import { actions, component, defineRoutes, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
+// @ts-expect-error - TODO: add ?enhancement type defs
+import baseStylesHref from "water.css/out/water.css?enhancement";
 
 // @ts-expect-error - TODO: add ?enhancement type defs
 import enhancementSrc from "./app.enhancement.ts?enhancement";
@@ -13,6 +15,7 @@ import appCssHref from "./app.css?enhancement";
 
 export const routes = defineRoutes((router) =>
 	router
+		.use(actions(getAction), layout(Layout))
 		.mount(
 			"/",
 			...defineRoutes((router) =>
@@ -22,7 +25,6 @@ export const routes = defineRoutes((router) =>
 				),
 			),
 		)
-		.use(actions(getAction), layout(Layout))
 		.route(
 			"/login",
 			component(() => import("./login/login.js")),
@@ -49,6 +51,7 @@ function Layout({ children }: { children: JSXNode }) {
 			<head>
 				<meta charset="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				<link rel="stylesheet" href={baseStylesHref} />
 				<link rel="stylesheet" href={appCssHref} />
 				<script async type="module" src={enhancementSrc} />
 			</head>

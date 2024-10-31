@@ -2,10 +2,10 @@ import { defineElement, swap } from "dream/browser";
 
 import { UserMessage, validateChatInput } from "./chat.shared.jsx";
 
-class ChatForm extends HTMLElement {
+class ChatApp extends HTMLElement {
 	connectedCallback() {
 		const form = this.querySelector(".chat-app__form") as HTMLFormElement;
-		form.addEventListener("submit", this.handleSubmit);
+		form.addEventListener("submit", this.handleSubmit.bind(this));
 
 		const promptInput = form.querySelector(
 			"input[name=prompt]",
@@ -35,11 +35,16 @@ class ChatForm extends HTMLElement {
 
 		swap(
 			this,
-			"find .chat-app__messages > .chat-app__pending-bot-message",
+			"find .chat-app__pending-bot-message",
 			"beforebegin",
 			<UserMessage>{prompt}</UserMessage>,
 		);
+
+		setTimeout(() => {
+			form.reset();
+			promptInput.select();
+		});
 	}
 }
 
-defineElement("chat-form", ChatForm);
+defineElement("chat-app", ChatApp);

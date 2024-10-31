@@ -18,7 +18,17 @@ import {
 	runMatch,
 } from "std-router";
 
+import type {
+	CookieSessionStorageOptions,
+	Session,
+	SessionStorage,
+} from "./sessions.js";
+import { createCookieSessionStorage } from "./sessions.js";
+
 export * from "std-router";
+
+export * from "./cookie.js";
+export * from "./sessions.js";
 
 export type LayoutComponent = (props: { children: JSXNode }) => JSXNode;
 
@@ -159,12 +169,6 @@ export function defineRoutes<
 	});
 }
 
-export interface Session {
-	get(key: string): string | null;
-	set(key: string, value: string): void;
-	unset(key: string): void;
-}
-
 export function actionResult<T extends (request: Request) => any>(
 	action: T,
 ): ActionResult<Awaited<ReturnType<T>>> | undefined {
@@ -192,10 +196,20 @@ export function getSession(): Session {
 	return session;
 }
 
+export type HandleRequestConfig = {
+	cookieSessionStorage?: CookieSessionStorageOptions;
+	sessionStorage?: SessionStorage;
+};
+
 export async function handleRequest(
 	request: Request,
 	routes: ReadonlyArray<Route<any, any>>,
+	{ cookieSessionStorage, sessionStorage }: HandleRequestConfig = {},
 ): Promise<Response | null> {
+	if (!sessionStorage) {
+		sessionStorage = createCookieSessionStorage(cookieSessionStorage);
+	}
+
 	try {
 		const match = matchRoutes(routes, new URL(request.url));
 		if (!match) {
@@ -204,19 +218,9 @@ export async function handleRequest(
 
 		const actionResults = new WeakMap();
 
-		let hasModifiedSession = false;
-		// TODO: Implement session storage
-		const session: Session = {
-			get(key) {
-				return null;
-			},
-			set(key, value) {
-				hasModifiedSession = true;
-			},
-			unset(key) {
-				hasModifiedSession = true;
-			},
-		};
+		const session = await sessionStorage.getSession(
+			request.headers.get("Cookie"),
+		);
 
 		const ctx: RequestContext = {
 			actionResults,
@@ -229,17 +233,14 @@ export async function handleRequest(
 			runMatch(match, request),
 		);
 
-		if (hasModifiedSession) {
-			const headers = new Headers(response.headers);
-			// TODO: Commit session changes
-			return new Response(response.body, {
-				headers,
-				status: response.status,
-				statusText: response.statusText,
-			});
-		}
+		const headers = new Headers(response.headers);
+		headers.append("Set-Cookie", await sessionStorage.commitSession(session));
 
-		return response;
+		return new Response(response.body, {
+			headers,
+			status: response.status,
+			statusText: response.statusText,
+		});
 	} catch (error) {
 		if (
 			error &&

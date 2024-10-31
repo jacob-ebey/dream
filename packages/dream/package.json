@@ -55,6 +55,8 @@
 		"@babel/core": "7.26.0",
 		"@biomejs/biome": "1.9.4",
 		"@mjackson/node-fetch-server": "0.1.0",
+		"@types/cookie": "1.0.0",
+		"cookie": "1.0.1",
 		"pipeable-dom": "0.0.30",
 		"std-router": "0.0.10",
 		"ts-toolbelt": "9.6.0",
@@ -66,7 +68,6 @@
 		"@types/dom-view-transitions": "1.0.5",
 		"@types/node": "^20",
 		"tsup": "8.3.5",
-		"typescript": "5.6.3",
-		"vite-tsconfig-paths": "5.0.1"
+		"typescript": "5.6.3"
 	}
 }

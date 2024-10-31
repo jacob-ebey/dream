@@ -6,10 +6,6 @@
 	animation-duration: 0.2s;
 }
 
-body {
-	background: white;
-}
-
 .htmx-request.indicator-show,
 .htmx-request .indicator-show {
 	display: initial;

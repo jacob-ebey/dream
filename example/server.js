@@ -50,7 +50,13 @@ const routes = defineRoutes((router) =>
 
 const server = createServer(
 	createRequestListener(async (request) => {
-		const response = await handleRequest(request, routes);
+		const response = await handleRequest(request, routes, {
+			cookieSessionStorage: {
+				cookie: {
+					secrets: [process.env.COOKIE_SECRET],
+				},
+			},
+		});
 		if (response) {
 			return response;
 		}

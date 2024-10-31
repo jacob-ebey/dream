@@ -65,7 +65,7 @@ export default async function Chat() {
 					class="chat-app__form"
 					hx-target="previous .chat-app__messages > .chat-app__pending-bot-message"
 					hx-swap="beforebegin"
-					hx-disabled-elt="input, button"
+					hx-disabled-elt="chat-app input, chat-app button"
 					hx-indicator="closest chat-app"
 				>
 					<input type="hidden" name="chatId" value={chatId} />
