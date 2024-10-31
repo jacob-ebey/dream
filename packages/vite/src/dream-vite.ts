@@ -114,8 +114,6 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 								build: {
 									assetsInlineLimit: 0,
 									outDir: "dist/server",
-									emitAssets: true,
-									ssrEmitAssets: true,
 								},
 							},
 						},
