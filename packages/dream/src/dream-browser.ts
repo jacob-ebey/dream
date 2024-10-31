@@ -46,8 +46,28 @@ export function installBrowserRuntime() {
 
 		let sync = getSync([anchor, document.body], "replace");
 		let swap = getSwap([anchor, document.body]);
+		let indicatorElements = getVisualElements("hx-indicator", [
+			anchor,
+			document.body,
+		]);
+		indicatorElements = indicatorElements.length
+			? indicatorElements
+			: [document.body];
+		let disabledElements = getVisualElements("hx-disabled-elt", [
+			anchor,
+			document.body,
+		]);
 
-		fetchAndSwap(event, url, {}, sync, swap);
+		fetchAndSwap(
+			event,
+			url,
+			{},
+			sync,
+			swap,
+			indicatorElements,
+			disabledElements,
+			"p",
+		);
 	});
 
 	addEventListener("submit", (event) => {
@@ -64,7 +84,7 @@ export function installBrowserRuntime() {
 		}
 
 		const submitter = event.submitter as HTMLButtonElement | null;
-		const action = submitter?.formAction || form.action;
+		const action = submitter?.getAttribute("formaction") || form.action;
 		const url = new URL(action, window.location.href);
 		if (url.origin != window.location.origin) {
 			return;
@@ -75,10 +95,20 @@ export function installBrowserRuntime() {
 			return;
 		}
 
-		const method = (submitter?.formMethod || form.method).toUpperCase();
+		const method = (
+			submitter?.getAttribute("formmethod") || form.method
+		).toUpperCase();
 
 		let sync = getSync([submitter, form]);
 		let swap = getSwap([submitter, form]);
+		let indicatorElements = getVisualElements("hx-indicator", [
+			submitter,
+			form,
+		]);
+		let disabledElements = getVisualElements("hx-disabled-elt", [
+			submitter,
+			form,
+		]);
 
 		let body: FormData | null = null;
 		if (method == "POST") {
@@ -102,6 +132,9 @@ export function installBrowserRuntime() {
 			},
 			sync,
 			swap,
+			indicatorElements,
+			disabledElements,
+			"r",
 		);
 	});
 }
@@ -117,6 +150,9 @@ function fetchAndSwap(
 		syncElement,
 	]: ReturnType<typeof getSync>,
 	[swapElement, swapSelector, swapType]: ReturnType<typeof getSwap>,
+	indicatorElements: (Element & { _inFlightRequestCount?: number })[],
+	disabledElements: Element[],
+	pushOrReplace: "p" | "r" | undefined,
 ) {
 	if (shouldStopSurfacingResults && syncElement._renderController) {
 		syncElement._renderController.abort();
@@ -141,12 +177,25 @@ function fetchAndSwap(
 	let signal = syncElement._syncController.signal;
 	let renderSignal = syncElement._renderController.signal;
 
-	// fetch(input, init);
-	const headers = new Headers(init.headers);
-	headers.set("HX-Request", "true");
 	let doFetch = () => {
-		// TODO: Process indicators
+		for (let indicatorElement of indicatorElements) {
+			indicatorElement._inFlightRequestCount =
+				(indicatorElement._inFlightRequestCount ?? 0) + 1;
+			indicatorElement.classList.add("htmx-request");
+		}
 
+		for (const el of disabledElements) {
+			const wasDisabled = el.hasAttribute("disabled");
+			if (wasDisabled)
+				el.setAttribute(
+					"data-hx-was-disabled",
+					el.getAttribute("disabled") ?? "",
+				);
+			el.setAttribute("disabled", "true");
+		}
+
+		const headers = new Headers(init.headers);
+		headers.set("HX-Request", "true");
 		return fetch(input, {
 			...init,
 			headers,
@@ -155,6 +204,25 @@ function fetchAndSwap(
 			.then(async (response) => {
 				if (signal.aborted) {
 					return;
+				}
+
+				let responseURL = new URL(response.url);
+				responseURL.searchParams.delete("_action");
+				let targetLocation = responseURL.href;
+				if (pushOrReplace == "p") {
+					if (window.location.href != targetLocation) {
+						history.pushState({}, "", response.url);
+					}
+				} else if (pushOrReplace == "r") {
+					if (window.location.href != targetLocation) {
+						history.replaceState({}, "", response.url);
+					}
+				}
+
+				if (response.redirected) {
+					swapElement = document.body;
+					swapSelector = "self";
+					swapType = "innerHTML";
 				}
 
 				let [a, b] = response.body!.tee();
@@ -167,10 +235,12 @@ function fetchAndSwap(
 
 				if (typeof document.startViewTransition != "undefined") {
 					let resolved = false;
-					return document.startViewTransition(
+					let observers: MutationObserver[] = [];
+					let swapDonePromise: Promise<void> | undefined;
+					let transition = document.startViewTransition(
 						() =>
 							new Promise((resolve) => {
-								swap(
+								swapDonePromise = swap(
 									swapElement,
 									swapSelector,
 									swapType as SwapType,
@@ -179,16 +249,68 @@ function fetchAndSwap(
 										if (!resolved && isVisualNode(node)) {
 											resolve();
 										}
+
+										if (node instanceof HTMLElement && node.autofocus) {
+											setTimeout(() => {
+												node.focus();
+											}, 0);
+										}
+
+										if (node instanceof Element) {
+											// Observe the element for any new nodes that come in
+											let observer = new MutationObserver((mutations) => {
+												for (let mutation of mutations) {
+													for (let node of mutation.addedNodes) {
+														if (node instanceof HTMLElement && node.autofocus) {
+															setTimeout(() => {
+																node.focus();
+															}, 0);
+														}
+													}
+												}
+											});
+											observer.observe(node, {
+												subtree: true,
+												childList: true,
+											});
+											observers.push(observer);
+										}
 									},
 								).finally(() => !resolved && resolve());
 							}),
-					).ready;
+					);
+
+					await transition.ready;
+
+					await swapDonePromise;
+					for (let observer of observers) {
+						observer.disconnect();
+					}
 				}
 
 				return swap(swapElement, swapSelector, swapType as SwapType, b);
 			})
 			.finally(() => {
-				// TODO: Process indicators
+				for (const indicatorElement of indicatorElements) {
+					if (
+						typeof indicatorElement?._inFlightRequestCount === "number" &&
+						--indicatorElement._inFlightRequestCount === 0
+					) {
+						indicatorElement.classList.remove("htmx-request");
+					}
+				}
+
+				for (const el of disabledElements) {
+					if (el.hasAttribute("data-hx-was-disabled")) {
+						el.setAttribute(
+							"disabled",
+							el.getAttribute("data-hx-was-disabled") ?? "",
+						);
+						el.removeAttribute("data-hx-was-disabled");
+					} else {
+						el.removeAttribute("disabled");
+					}
+				}
 
 				if (syncElement._syncController === controller) {
 					syncElement._syncController = undefined;
@@ -231,6 +353,27 @@ let isVisualNode = (node: Node) => {
 		(node.nodeType === Node.ELEMENT_NODE &&
 			!(node as Element).matches("link, meta, script, style, title"))
 	);
+};
+
+let getVisualElements = (
+	attribute: string,
+	toCheck: Array<Element | null | undefined>,
+) => {
+	let elements: Element[] = [];
+	for (let check of toCheck) {
+		if (check != null) {
+			let targets = check.getAttribute(attribute);
+			if (targets) {
+				elements.push(
+					...querySelectorAllExt(check, targets).filter(
+						(e) => e instanceof Element,
+					),
+				);
+				break;
+			}
+		}
+	}
+	return elements;
 };
 
 let getSwap = (

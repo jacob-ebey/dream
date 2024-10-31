@@ -1,3 +1,15 @@
+@view-transition {
+	navigation: auto;
+}
+
+::view-transition-group(root) {
+	animation-duration: 0.2s;
+}
+
+body {
+	background: white;
+}
+
 .htmx-request.indicator-show,
 .htmx-request .indicator-show {
 	display: initial;
@@ -5,4 +17,34 @@
 
 .indicator-show {
 	display: none;
+}
+
+@keyframes indeterminateAnimation {
+	0% {
+		transform: translateX(0) scaleX(0);
+	}
+	40% {
+		transform: translateX(0) scaleX(0.4);
+	}
+	100% {
+		transform: translateX(100%) scaleX(0.5);
+	}
+}
+
+.progress-bar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	width: 100%;
+	overflow: hidden;
+}
+
+.progress-bar-value {
+	width: 100%;
+	height: 100%;
+	background-color: rgb(5, 114, 206);
+	animation: indeterminateAnimation 1.2s infinite linear;
+	transform-origin: 0% 50%;
 }

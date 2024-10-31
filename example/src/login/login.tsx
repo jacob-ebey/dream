@@ -50,7 +50,7 @@ export default function Login({
 					method="post"
 					hx-target="self"
 					hx-indicator="self"
-					hx-disabled-elt="input, button"
+					hx-disabled-elt="button"
 				>
 					<p>
 						<label>
@@ -79,7 +79,7 @@ export default function Login({
 					</p>
 					{!!error && <p>{error}</p>}
 					{loginResult?.error && <p>Something went wrong</p>}
-					<p>
+					<p style="view-transition-name: login-button;">
 						<button type="submit">
 							Login
 							<img

@@ -52,7 +52,10 @@ function Layout({ children }: { children: JSXNode }) {
 				<link rel="stylesheet" href={appCssHref} />
 				<script async type="module" src={enhancementSrc} />
 			</head>
-			<body>
+			<body hx-indicator="find .progress-bar">
+				<div class="progress-bar indicator-show">
+					<div class="progress-bar-value" />
+				</div>
 				<nav>
 					<ul>
 						<li>
