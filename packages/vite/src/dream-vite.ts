@@ -63,6 +63,7 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 									const clientBuildOutput = (await builder.build(
 										builder.environments.client,
 									)) as vite.Rollup.RollupOutput;
+
 									for (const output of clientBuildOutput.output) {
 										if (
 											(output.type !== "chunk" ||
@@ -79,10 +80,13 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 											(output as any).originalFileNames?.[0] ??
 												(output as any).facadeModuleId,
 										);
-										const preloads = (output as any).imports ?? [];
+										const preloads =
+											(output as { imports?: string[] }).imports?.map(
+												(p) => builder.config.base + p,
+											) ?? [];
 
 										enhancementsCache.set(entry, {
-											entry: output.fileName,
+											entry: builder.config.base + output.fileName,
 											preloads,
 										});
 									}
@@ -110,6 +114,8 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 								build: {
 									assetsInlineLimit: 0,
 									outDir: "dist/server",
+									emitAssets: true,
+									ssrEmitAssets: true,
 								},
 							},
 						},
@@ -119,11 +125,11 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 			},
 		},
 		{
-			name: "enhancement",
+			name: "enhancements",
 			enforce: "pre",
 			async resolveId(id, importer) {
-				if (id.endsWith("?enhancement")) {
-					const resolvedId = await this.resolve(id.slice(0, -12), importer, {
+				if (id.endsWith("?url")) {
+					const resolvedId = await this.resolve(id.slice(0, -4), importer, {
 						skipSelf: true,
 					});
 					if (!resolvedId) return;
@@ -143,7 +149,7 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 
 					if (this.environment.mode === "dev") {
 						return `
-							export default "${modId}";
+							export default "/@fs${vite.normalizePath(modId)}";
 							export const imports = [];
 						`;
 					}

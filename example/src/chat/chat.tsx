@@ -1,11 +1,10 @@
 import { actionResult, getParam } from "dream";
 
+import spinnerSrc from "~/icons/spinner.svg?url";
 import { getUser } from "~/lib/auth.js";
 
-// @ts-expect-error - TODO: add ?enhancement type defs
-import stylesHref from "./chat.css?enhancement";
-// @ts-expect-error - TODO: add ?enhancement type defs
-import enhancementSrc from "./chat.enhancement.tsx?enhancement";
+import stylesHref from "./chat.css?url";
+import enhancementSrc from "./chat.enhancement.tsx?url";
 import { getMessages, validateAndSendChatMessage } from "./chat.server.js";
 import { BotMessage, ErrorMessage, UserMessage } from "./chat.shared.js";
 
@@ -65,12 +64,21 @@ export default async function Chat() {
 					class="chat-app__form"
 					hx-target="previous .chat-app__messages > .chat-app__pending-bot-message"
 					hx-swap="beforebegin"
-					hx-disabled-elt="chat-app input, chat-app button"
+					hx-disabled-elt="chat-app button"
 					hx-indicator="closest chat-app"
 				>
 					<input type="hidden" name="chatId" value={chatId} />
 					<input type="text" name="prompt" />
-					<button type="submit">Send</button>
+					<button type="submit">
+						Send
+						<img
+							class="indicator-show"
+							src={spinnerSrc}
+							alt=""
+							width="10"
+							height="10"
+						/>
+					</button>
 				</form>
 			</chat-app>
 		</>
@@ -78,7 +86,8 @@ export default async function Chat() {
 }
 
 async function* StreamText({ iterable }: { iterable: AsyncIterable<string> }) {
-	for await (const text of iterable) {
-		yield <span>{text}</span>;
-	}
+	yield* iterable;
+	// for await (const text of iterable) {
+	// 	yield <span>{text}</span>;
+	// }
 }

@@ -1,6 +1,7 @@
 import type { JSXNode } from "pipeable-dom/jsx";
 
-declare module "*.js?enhancement" {
+declare module "*.js?url" {
+	export const imports: string[];
 	const src: string;
 	export default src;
 }

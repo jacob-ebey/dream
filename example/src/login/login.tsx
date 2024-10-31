@@ -4,8 +4,7 @@ import type { routes } from "~/app.js";
 import spinnerSrc from "~/icons/spinner.svg?url";
 import { setUserId, validateUser } from "~/lib/auth.js";
 
-// @ts-expect-error - TODO: add ?enhancement type defs
-import enhancementSrc from "./login.enhancement.js?enhancement";
+import enhancementSrc from "./login.enhancement.js?url";
 
 async function loginAction(request: Request) {
 	"use action";

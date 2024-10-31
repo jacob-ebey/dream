@@ -2,16 +2,12 @@
 import { getAction } from "virtual:actions";
 import { actions, component, defineRoutes, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
-// @ts-expect-error - TODO: add ?enhancement type defs
-import baseStylesHref from "water.css/out/water.css?enhancement";
+import baseStylesHref from "water.css/out/water.css?url";
 
-// @ts-expect-error - TODO: add ?enhancement type defs
-import enhancementSrc from "./app.enhancement.ts?enhancement";
+import appCssHref from "./app.css?url";
+import enhancementSrc from "./app.enhancement.ts?url";
 import spinnerSrc from "./icons/spinner.svg?url";
 import { getUser, requireUser, unsetUserId } from "./lib/auth.js";
-
-// @ts-expect-error - TODO: add ?enhancement type defs
-import appCssHref from "./app.css?enhancement";
 
 export const routes = defineRoutes((router) =>
 	router
