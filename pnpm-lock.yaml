@@ -103,13 +103,16 @@ importers:
       '@babel/core':
         specifier: 7.26.0
         version: 7.26.0
+      '@mjackson/node-fetch-server':
+        specifier: 0.1.0
+        version: 0.1.0
+      dream:
+        specifier: workspace:*
+        version: link:../dream
     devDependencies:
       '@types/babel__core':
         specifier: 7.20.5
         version: 7.20.5
-      '@types/dom-view-transitions':
-        specifier: 1.0.5
-        version: 1.0.5
       '@types/node':
         specifier: ^20
         version: 20.17.3

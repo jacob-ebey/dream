@@ -2,6 +2,7 @@ import * as crypto from "node:crypto";
 import * as path from "node:path";
 
 import * as babel from "@babel/core";
+import { createRequestListener } from "@mjackson/node-fetch-server";
 import * as vite from "vite";
 
 import { useActionBabelPlugin } from "./use-action.js";
@@ -224,4 +225,46 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 			},
 		},
 	];
+}
+
+export function nodeDevServer(routesEntry: string): vite.Plugin {
+	return {
+		name: "node-dev-server",
+		configureServer(server) {
+			const runner = vite.createServerModuleRunner(server.environments.ssr);
+
+			return () => {
+				const listener = createRequestListener(async (request) => {
+					const [dream, mod] = await Promise.all([
+						runner.import("dream") as Promise<typeof import("dream")>,
+						runner.import(routesEntry) as Promise<{
+							default?: any;
+							routes?: any;
+						}>,
+						runner.import("urlpattern-polyfill"),
+					]);
+
+					const response = await dream.handleRequest(
+						request,
+						mod.routes || mod.default,
+					);
+					if (!response) {
+						return new Response("Not found", { status: 404 });
+					}
+					return response;
+				});
+
+				server.middlewares.use(async (req, res, next) => {
+					let url = req.url;
+					try {
+						req.url = req.originalUrl;
+						await listener(req, res);
+					} catch (error) {
+						req.url = url;
+						next(error);
+					}
+				});
+			};
+		},
+	};
 }
