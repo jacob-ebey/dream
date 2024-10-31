@@ -3,6 +3,7 @@ import * as path from "node:path";
 
 import * as babel from "@babel/core";
 import { createRequestListener } from "@mjackson/node-fetch-server";
+import type { Environment } from "dream";
 import * as vite from "vite";
 
 import { useActionBabelPlugin } from "./use-action.js";
@@ -227,7 +228,10 @@ export default function dreamVitePlugin(): vite.PluginOption[] {
 	];
 }
 
-export function nodeDevServer(routesEntry: string): vite.Plugin {
+export function nodeDevServer(
+	routesEntry: string,
+	environment?: () => Promise<Environment> | Environment,
+): vite.Plugin {
 	return {
 		name: "node-dev-server",
 		configureServer(server) {
@@ -247,6 +251,14 @@ export function nodeDevServer(routesEntry: string): vite.Plugin {
 					const response = await dream.handleRequest(
 						request,
 						mod.routes || mod.default,
+						{
+							env: await environment?.(),
+							cookieSessionStorage: {
+								cookie: {
+									secrets: ["development-cookie-secret"],
+								},
+							},
+						},
 					);
 					if (!response) {
 						return new Response("Not found", { status: 404 });

@@ -46,6 +46,7 @@ chat-app {
 
 .chat-app__form button {
 	margin: 0;
+	display: flex;
 }
 
 .htmx-request .chat-app__user-message + .chat-app__pending-bot-message {

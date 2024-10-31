@@ -1,6 +1,6 @@
 // @ts-expect-error - TODO: add virtual:actions type defs
 import { getAction } from "virtual:actions";
-import { actions, component, defineRoutes, layout, link } from "dream";
+import { actions, component, defineRoutes, env, layout, link } from "dream";
 import type { JSXNode } from "dream/jsx";
 import baseStylesHref from "water.css/out/water.css?url";
 

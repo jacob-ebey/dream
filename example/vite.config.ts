@@ -21,5 +21,11 @@ export default defineConfig({
 			},
 		},
 	},
-	plugins: [tsconfigPaths(), dream(), nodeDevServer(appEntry)],
+	plugins: [
+		tsconfigPaths(),
+		dream(),
+		nodeDevServer(appEntry, () =>
+			import("./environment.js").then(({ environment }) => environment()),
+		),
+	],
 });

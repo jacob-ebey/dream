@@ -9,6 +9,11 @@ import "urlpattern-polyfill";
 
 import * as app from "./dist/server/app.js";
 
+const COOKIE_SECRET = process.env.COOKIE_SECRET;
+if (!COOKIE_SECRET) {
+	throw new Error("Missing COOKIE_SECRET environment variable");
+}
+
 const publicDir = path.resolve("dist/client");
 
 const routes = defineRoutes((router) =>
@@ -53,7 +58,7 @@ const server = createServer(
 		const response = await handleRequest(request, routes, {
 			cookieSessionStorage: {
 				cookie: {
-					secrets: [process.env.COOKIE_SECRET],
+					secrets: [COOKIE_SECRET],
 				},
 			},
 		});

@@ -46,6 +46,7 @@ type RequestContext = {
 	match: RouteMatch;
 	request: Request;
 	session: Session;
+	env: Environment;
 };
 
 const requestContext = new AsyncLocalStorage<RequestContext>();
@@ -196,15 +197,34 @@ export function getSession(): Session {
 	return session;
 }
 
+export interface Environment extends Record<string, unknown> {}
+
+export function env<Key extends keyof Environment>(
+	key: Key,
+	required?: true,
+): Environment[Key];
+export function env<Key extends keyof Environment>(
+	key: Key,
+	required: false,
+): Environment[Key] | undefined;
+export function env(key: string, required = true): unknown {
+	const { env } = getContext();
+	if (required && !(key in env)) {
+		throw new Error(`Missing required environment variable: ${key}`);
+	}
+	return env[key];
+}
+
 export type HandleRequestConfig = {
 	cookieSessionStorage?: CookieSessionStorageOptions;
+	env?: Environment;
 	sessionStorage?: SessionStorage;
 };
 
 export async function handleRequest(
 	request: Request,
 	routes: ReadonlyArray<Route<any, any>>,
-	{ cookieSessionStorage, sessionStorage }: HandleRequestConfig = {},
+	{ cookieSessionStorage, env, sessionStorage }: HandleRequestConfig = {},
 ): Promise<Response | null> {
 	if (!sessionStorage) {
 		sessionStorage = createCookieSessionStorage(cookieSessionStorage);
@@ -224,6 +244,7 @@ export async function handleRequest(
 
 		const ctx: RequestContext = {
 			actionResults,
+			env: env ?? ({} as Environment),
 			match,
 			request,
 			session,
